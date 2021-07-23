@@ -8,6 +8,6 @@ db:
   database:
 
 jwt:
-  access_token_expires:
-  refresh_token_expires:
-  issuer:
+  verify:
+    issuer:
+    audience:
