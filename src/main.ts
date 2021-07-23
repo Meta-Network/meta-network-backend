@@ -2,13 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get<ConfigService>(ConfigService);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -16,12 +13,7 @@ async function bootstrap() {
     }),
   );
 
-  app.use(helmet());
   app.use(cookieParser());
-
-  app.enableCors({
-    origin: configService.get<string[]>('cors.origins'),
-  });
 
   const config = new DocumentBuilder()
     .setTitle('UCenter API')
