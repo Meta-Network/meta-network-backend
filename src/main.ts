@@ -25,8 +25,8 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('UCenter API')
-    .setDescription('UCenter API testing branch')
+    .setTitle('Meta Network API')
+    .setDescription('Meta Network API')
     .setVersion('1.0')
     .build();
 
