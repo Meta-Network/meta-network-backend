@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
 import { AuthModule } from './auth/auth.module';
+import { HexGridsModule } from './hex-grids/hex-grids.module';
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
 const logFormat = printf((info) => {
@@ -66,6 +67,7 @@ const logFormat = printf((info) => {
       }),
     }),
     AuthModule,
+    HexGridsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
