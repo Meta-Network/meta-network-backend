@@ -4,10 +4,12 @@ import { Module } from '@nestjs/common';
 import configuration from './config/configuration';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { UsersModule } from './users/users.module';
 import * as fs from 'fs';
 import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JWTAuthGuard } from './auth/jwt.guard';
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
 const logFormat = printf((info) => {
@@ -65,9 +67,15 @@ const logFormat = printf((info) => {
         synchronize: false,
       }),
     }),
-    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JWTAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
