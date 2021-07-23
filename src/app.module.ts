@@ -8,8 +8,6 @@ import * as fs from 'fs';
 import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JWTAuthGuard } from './auth/jwt.guard';
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
 const logFormat = printf((info) => {
@@ -70,12 +68,6 @@ const logFormat = printf((info) => {
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JWTAuthGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

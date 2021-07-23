@@ -42,3 +42,4 @@ config.*
 # JWT keys
 JWT_PRIVATE_KEY.pem
 JWT_PUBLIC_KEY.pub
+JWT_PUBLIC_KEY.pub.*

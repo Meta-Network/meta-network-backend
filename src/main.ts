@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { JWTAuthGuard } from './auth/jwt.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,9 +16,9 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-
   app.use(helmet());
   app.use(cookieParser());
+  app.useGlobalGuards(new JWTAuthGuard());
 
   app.enableCors({
     origin: configService.get<string[]>('cors.origins'),
