@@ -7,6 +7,6 @@ import { JWTStrategy } from './jwt.strategy';
 @Module({
   imports: [PassportModule],
   providers: [AuthService, JWTAuthGuard, JWTStrategy],
-  exports: [AuthService],
+  exports: [AuthService, JWTAuthGuard, JWTStrategy],
 })
 export class AuthModule {}

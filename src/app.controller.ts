@@ -1,16 +1,18 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiCookieAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { CurrentUser } from './auth/jwt-user.decorator';
-import { JWTAuthGuard } from './auth/jwt.guard';
+import { JWTStrategy } from './auth/jwt.strategy';
 import { JWTDecodedUser } from './auth/type';
 
+@ApiCookieAuth()
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly configService: ConfigService,
+    private readonly jwtStrategy: JWTStrategy,
   ) {}
 
   @Get()
@@ -18,19 +20,13 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @ApiCookieAuth()
   @Get('me')
   getCurrentUser(@CurrentUser() user: JWTDecodedUser): JWTDecodedUser {
     return user;
   }
 
-  @Get('verify-options')
+  @Get('jwt-verify-options')
   getJwtVerifyOptions() {
-    const verifyOptions = {
-      algorithms: ['RS256', 'RS384'],
-      issuer: this.configService.get<string[]>('jwt.verify.issuer'),
-      audience: this.configService.get<string[]>('jwt.verify.audience'),
-    };
-    return verifyOptions;
+    return this.jwtStrategy.getJwtVerifyOptions();
   }
 }

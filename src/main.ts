@@ -28,6 +28,7 @@ async function bootstrap() {
     .setTitle('Meta Network API')
     .setDescription('Meta Network API')
     .setVersion('1.0')
+    .addCookieAuth(configService.get<string>('jwt.access_token_key'))
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
