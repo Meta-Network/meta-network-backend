@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NotAcceptableException, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
+import formCors from 'form-cors';
 import helmet from 'helmet';
 import { JWTAuthGuard } from './auth/jwt.guard';
 
@@ -17,6 +18,14 @@ async function bootstrap() {
     }),
   );
   app.use(helmet());
+
+  app.use(
+    formCors({
+      allowList: configService.get<string[]>('cors.origins'),
+      exception: new NotAcceptableException('This request is not allowed.'),
+    }),
+  );
+
   app.use(cookieParser());
   app.useGlobalGuards(new JWTAuthGuard());
 
