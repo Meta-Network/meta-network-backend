@@ -9,6 +9,7 @@ import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
 import { AuthModule } from './auth/auth.module';
 import { HexGridsModule } from './hex-grids/hex-grids.module';
+import * as ormconfig from './config/ormconfig';
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
 const logFormat = printf((info) => {
@@ -46,26 +47,7 @@ const logFormat = printf((info) => {
       exitOnError: false,
     }),
     // Database Module Configuration
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('db.host'),
-        ssl: {
-          ca: fs.readFileSync('./rds-ca-2019-root.pem', 'utf8').toString(),
-        },
-        port: configService.get<number>('db.port', 3306),
-        connectTimeout: 60 * 60 * 1000,
-        acquireTimeout: 60 * 60 * 1000,
-        username: configService.get<string>('db.username'),
-        password: configService.get<string>('db.password'),
-        database: configService.get<string>('db.database'),
-        autoLoadEntities: true,
-        entities: [],
-        synchronize: false,
-      }),
-    }),
+    TypeOrmModule.forRoot(ormconfig),
     AuthModule,
     HexGridsModule,
   ],
