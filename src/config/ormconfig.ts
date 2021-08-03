@@ -1,5 +1,6 @@
 import * as yaml from 'js-yaml';
 import { readFileSync } from 'fs';
+import { HexGrid } from '../entities/hex-grid.entity';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const YAML_CONFIG_FILENAME =
@@ -38,7 +39,7 @@ module.exports = {
   database: db.database,
   connectTimeout: db.connect_timeout,
   synchronize: false,
-  entities: ['dist/**/*.entity.ts'],
+  entities: [HexGrid],
   migrations: ['dist/migration/**/*.ts'],
   cli: {
     migrationsDir: 'migration',
