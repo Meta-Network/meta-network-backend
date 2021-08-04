@@ -1,12 +1,7 @@
 import * as yaml from 'js-yaml';
 import { readFileSync } from 'fs';
 import { HexGrid } from '../entities/hex-grid.entity';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const YAML_CONFIG_FILENAME =
-  process.env.NODE_ENV === 'production'
-    ? 'config.production.yaml'
-    : 'config.development.yaml';
+import loadConfig from './configuration';
 
 class Config {
   db: DB;
@@ -21,7 +16,7 @@ class DB {
   connect_timeout: number;
 }
 
-const { db } = yaml.load(readFileSync(YAML_CONFIG_FILENAME, 'utf8')) as Config;
+const { db } = loadConfig();
 const ca = readFileSync('rds-ca-2019-root.pem').toString();
 // console.log(db);
 // console.log(ca);
@@ -40,7 +35,7 @@ module.exports = {
   connectTimeout: db.connect_timeout,
   synchronize: false,
   entities: [HexGrid],
-  migrations: ['dist/migration/**/*.ts'],
+  migrations: ['*.ts'],
   cli: {
     migrationsDir: 'migration',
   },
