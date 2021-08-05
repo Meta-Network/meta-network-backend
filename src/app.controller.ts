@@ -1,11 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiCookieAuth } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { CurrentUser } from './auth/jwt-user.decorator';
-import { JWTAuthGuard } from './auth/jwt.guard';
+
 import { JWTStrategy } from './auth/jwt.strategy';
-import { JWTDecodedUser } from './auth/type';
+
+import { ApiGeneralResponse } from './decorators/api-general-response.decorator';
 
 @Controller()
 export class AppController {
@@ -15,15 +15,9 @@ export class AppController {
     private readonly jwtStrategy: JWTStrategy,
   ) {}
 
-  @ApiCookieAuth()
-  @UseGuards(JWTAuthGuard)
-  @Get('me')
-  getCurrentUser(@CurrentUser() user: JWTDecodedUser): JWTDecodedUser {
-    return user;
+  @ApiGeneralResponse(String)
+  @Get()
+  index() {
+    return 'Welcome to Meta Network!';
   }
-
-  // @Get('jwt-verify-options')
-  // getJwtVerifyOptions() {
-  //   return this.jwtStrategy.getJwtVerifyOptions();
-  // }
 }
