@@ -39,9 +39,9 @@ import { ApiGeneralArrayResponse } from 'src/decorators/api-general-array-respon
 
 @ApiTags('hex-grids')
 @ApiCookieAuth()
-@ApiGeneralResponse(HexGrid, '调用成功', HttpStatus.OK)
+@ApiGeneralResponse(HexGrid)
 @ApiUnauthorizedResponse({
-  description: '当 Cookies 中的{accessToken}过期或无效时',
+  description: '当 Cookies 中的{accessToken}过期或无效时返回',
 })
 @ApiExtraModels(GeneralResponseDto, HexGrid)
 @Controller('hex-grids')
@@ -59,6 +59,15 @@ export class HexGridsController {
   @Get(':id')
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.hexGridsService.findOne({ id });
+  }
+
+  @ApiOperation({
+    summary: '获取当前用户占领的地块。如果还没有，不返回data部分',
+  })
+  @Get('mine')
+  async findMyHexGrid(@CurrentUser() user: JWTDecodedUser) {
+    this.logger.debug('findMyHexGrid', user);
+    return this.hexGridsService.findOneByUserId(user.id);
   }
 
   @ApiOperation({
@@ -108,7 +117,7 @@ export class HexGridsController {
   @ApiOperation({
     summary: '根据条件查询已被占领的地块。如果没有找到，data部分为空数组',
   })
-  @ApiGeneralArrayResponse(HexGrid, '调用成功', HttpStatus.OK)
+  @ApiGeneralArrayResponse(HexGrid)
   @HttpCode(HttpStatus.OK)
   @Post('by-filter')
   async findByFilter(@Body() params: FindByFilterDto) {
@@ -130,17 +139,12 @@ export class HexGridsController {
   }
 
   @ApiOperation({
-    summary: '获取当前账号占领的地块。如果还没有，不返回data部分',
-  })
-  @Get('mine')
-  async findMyHexGrid(@CurrentUser() user: JWTDecodedUser) {
-    return this.hexGridsService.findOne({ userId: user.id });
-  }
-
-  @ApiOperation({
     summary: '校验坐标是否可用',
   })
   @ApiGeneralResponse(Boolean)
+  @ApiConflictResponse({
+    description: '指定地块已被占领等唯一性冲突的情况下返回',
+  })
   @Put('coordinate/validation')
   async validateCoordinate(@Body() occupyHexGridDto: OccupyHexGridDto) {
     await this.hexGridsService.validateCoordinate(occupyHexGridDto);
@@ -166,22 +170,22 @@ export class HexGridsController {
     return await this.hexGridsService.occupy(occupyHexGridDto, user);
   }
 
-  @ApiOperation({
-    summary: '在占领的地块上建站',
-  })
-  @Post('site')
-  async createHexGridSite(
-    @CurrentUser() user: JWTDecodedUser,
-    @Req() req: Request,
-    @Body() createHexGridSiteDto: CreateHexGridSiteDto,
-  ) {
-    const accessToken =
-      req.cookies[this.configService.get<string>('jwt.access_token_key')];
+  // @ApiOperation({
+  //   summary: '在占领的地块上建站',
+  // })
+  // @Post('site')
+  // async createHexGridSite(
+  //   @CurrentUser() user: JWTDecodedUser,
+  //   @Req() req: Request,
+  //   @Body() createHexGridSiteDto: CreateHexGridSiteDto,
+  // ) {
+  //   const accessToken =
+  //     req.cookies[this.configService.get<string>('jwt.access_token_key')];
 
-    return await this.hexGridsService.createHexGridSite(
-      createHexGridSiteDto,
-      user,
-      accessToken,
-    );
-  }
+  //   return await this.hexGridsService.createHexGridSite(
+  //     createHexGridSiteDto,
+  //     user,
+  //     accessToken,
+  //   );
+  // }
 }

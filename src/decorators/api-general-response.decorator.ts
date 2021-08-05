@@ -4,8 +4,8 @@ import { GeneralResponseDto } from 'src/dto/general-response.dto';
 
 export const ApiGeneralResponse = <TModel extends Type<any>>(
   model: TModel,
-  description?: string,
-  status?: number,
+  description = '调用成功',
+  status = 200,
 ) => {
   const data = {} as Record<string, any>;
   if (
