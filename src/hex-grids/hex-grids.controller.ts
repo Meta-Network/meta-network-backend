@@ -52,7 +52,7 @@ export class HexGridsController {
   ) {}
 
   @ApiOperation({
-    summary: '根据ID获取单个格子。如果没有符合条件的格子，不返回data部分',
+    summary: '根据ID获取单个地块。如果没有符合条件的地块，不返回data部分',
   })
   @Get(':id')
   async findOneById(@Param('id', ParseIntPipe) id: number) {
@@ -60,7 +60,7 @@ export class HexGridsController {
   }
 
   @ApiOperation({
-    summary: '根据坐标定位格子。如果没有找到，不返回data部分',
+    summary: '根据坐标定位地块。如果没有找到，不返回data部分',
   })
   @Get('location/by-coordinate')
   async findOneByCooridnate(
@@ -72,14 +72,33 @@ export class HexGridsController {
     return await this.hexGridsService.findOneByCoordinate(x, y, z);
   }
   @ApiOperation({
-    description: '根据子域名定位格子。如果没有找到，不返回data部分',
+    description: '根据子域名定位地块。如果没有找到，不返回data部分',
   })
-  @Get('location/by-subdomain')
-  async findOneBySubdomain(@Query() params: FindOneBySubdomainDto) {
-    return await this.hexGridsService.findOne(params);
+  @Get('location/by-subdomain/:subdomain')
+  async findOneBySubdomain(@Param('subdomain') subdomain: string) {
+    return await this.hexGridsService.findOneBySubdomain(subdomain);
   }
   @ApiOperation({
-    summary: '根据MetaSpace URL定位格子。如果没有找到，不返回data部分',
+    summary: '根据用户ID查询其占领地块。如果没有找到，不返回data部分',
+  })
+  @Get('location/by-user-id/:user_id')
+  async findOneByUserId(@Param('user_id', ParseIntPipe) user_id: number) {
+    return await this.hexGridsService.findOneByUserId(user_id);
+  }
+  @ApiOperation({
+    summary: '根据站点ID查询其占领地块。如果没有找到，不返回data部分',
+  })
+  @Get('location/by-meta-sapce-site-id/:meta_space_site_id')
+  async findOneByMetaSpaceSiteId(
+    @Param('meta_space_site_id', ParseIntPipe) meta_space_site_id: number,
+  ) {
+    return await this.hexGridsService.findOneByMetaSpaceSiteId(
+      meta_space_site_id,
+    );
+  }
+
+  @ApiOperation({
+    summary: '根据MetaSpace URL定位地块。如果没有找到，不返回data部分',
   })
   @Get('location/by-site-url')
   async findOneBySiteUrl(@Query() params: FindOneBySiteUrlDto) {
@@ -87,7 +106,7 @@ export class HexGridsController {
     return await this.hexGridsService.findOneByMetaSpaceSiteUrl(site_url);
   }
   @ApiOperation({
-    summary: '根据条件查询已被占用的格子。如果没有找到，data部分为空数组',
+    summary: '根据条件查询已被占领的地块。如果没有找到，data部分为空数组',
   })
   @ApiGeneralArrayResponse(HexGrid)
   @HttpCode(HttpStatus.OK)
@@ -99,7 +118,7 @@ export class HexGridsController {
   }
 
   @ApiOperation({
-    summary: '根据条件统计已被占用的格子数量',
+    summary: '根据条件统计已被占用的地块数量',
   })
   @ApiGeneralResponse(Number)
   @HttpCode(HttpStatus.OK)
@@ -111,7 +130,7 @@ export class HexGridsController {
   }
 
   @ApiOperation({
-    summary: '获取当前账号的格子。如果还没有，不返回data部分',
+    summary: '获取当前账号占领的地块。如果还没有，不返回data部分',
   })
   @Get('mine')
   async findMyHexGrid(@CurrentUser() user: JWTDecodedUser) {
@@ -129,9 +148,9 @@ export class HexGridsController {
   }
 
   @ApiOperation({
-    summary: '占用格子',
+    summary: '占领地块',
   })
-  @ApiGeneralResponse(HexGrid, '格子占用信息', HttpStatus.CREATED)
+  @ApiGeneralResponse(HexGrid, '地块占领信息', HttpStatus.CREATED)
   @Post()
   async occupyHexGrid(
     @CurrentUser() user: JWTDecodedUser,
@@ -142,7 +161,7 @@ export class HexGridsController {
   }
 
   @ApiOperation({
-    summary: '在占用的格子上建站',
+    summary: '在占领的地块上建站',
   })
   @Post('site')
   async createHexGridSite(
@@ -152,7 +171,8 @@ export class HexGridsController {
   ) {
     const accessToken =
       req.cookies[this.configService.get<string>('jwt.access_token_key')];
-    await this.hexGridsService.createHexGridSite(
+
+    return await this.hexGridsService.createHexGridSite(
       createHexGridSiteDto,
       user,
       accessToken,

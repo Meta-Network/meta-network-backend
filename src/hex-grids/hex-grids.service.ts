@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JWTDecodedUser } from 'src/auth/type';
@@ -20,9 +25,13 @@ export class HexGridsService {
   async occupy(occupyHexGridDto: OccupyHexGridDto, user: JWTDecodedUser) {
     // 业务校验 - x+y+z=0
     await this.validateCoordinate(occupyHexGridDto);
-
+    // 唯一性校验，一个用户只能有一个地块
+    const user_id = user.id;
+    if (await this.isHexGridExisted({ user_id })) {
+      throw new ConflictException('You already own a grid');
+    }
     return await this.hexGridsRepository.save({
-      user_id: user.id,
+      user_id,
       username: user.username,
       ...occupyHexGridDto,
     });
@@ -51,6 +60,8 @@ export class HexGridsService {
         meta_space_site_url: siteInfo.url,
       },
     );
+    // TODO 增加邀请码 （不需要等待）
+
     return await this.findOne({ user_id });
   }
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
@@ -58,14 +69,14 @@ export class HexGridsService {
     const { x, y, z } = createHexGridDto;
     // 业务校验 - 该坐标或子域名没有被占用 (关系到子域名相关的业务逻辑在哪里完成)
     if (await this.isHexGridExisted({ x, y, z })) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'Invalid coordinate: This coordinate is already occupied',
       );
     }
     //     if(this.isHexGridExisted({subdomain})){
     //   throw new BadRequestException("Invalid subdomain: This subdomain is already occupied");
     // }
-    // 业务校验 - 必须和现有的格子相邻
+    // 业务校验 - 必须和现有的地块相邻
     if (
       !(await this.isHexGridExisted({
         x: Between(x - 1, x + 1),
@@ -116,6 +127,10 @@ export class HexGridsService {
 
   async findOneBySubdomain(subdomain: string): Promise<HexGrid> {
     return await this.hexGridsRepository.findOne({ subdomain });
+  }
+
+  async findOneByUserId(user_id: number): Promise<HexGrid> {
+    return await this.hexGridsRepository.findOne({ user_id });
   }
 
   async findOneByMetaSpaceSiteId(meta_space_site_id: number): Promise<HexGrid> {
