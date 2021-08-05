@@ -23,28 +23,28 @@ export class HexGrid {
   })
   site_name: string;
   @ApiProperty({
-    description: '格子的X轴坐标',
+    description: '地块的X轴坐标',
   })
   @Column({ nullable: false })
   x: number;
   @ApiProperty({
-    description: '格子的Y轴坐标',
+    description: '地块的Y轴坐标',
   })
   @Column({ nullable: false })
   y: number;
   @ApiProperty({
-    description: '格子的Z轴坐标',
+    description: '地块的Z轴坐标',
   })
   @Column({ nullable: false })
   z: number;
   @ApiProperty({
-    description: '格子拥有者ID',
+    description: '地块拥有者ID',
   })
   @Index({ unique: true })
   @Column({ nullable: false, default: 0 })
   user_id: number;
   @ApiProperty({
-    description: '格子拥有者用户名',
+    description: '地块拥有者用户名',
   })
   @Index()
   @Column({

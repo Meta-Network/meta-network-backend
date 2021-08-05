@@ -4,7 +4,7 @@ import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class FindOneByCoordinateDto {
   @ApiProperty({
-    description: '格子的X轴坐标',
+    description: '地块的X轴坐标',
     required: true,
   })
   @Type(() => Number)
@@ -12,7 +12,7 @@ export class FindOneByCoordinateDto {
   @IsNotEmpty()
   x: number;
   @ApiProperty({
-    description: '格子的Y轴坐标',
+    description: '地块的Y轴坐标',
     required: true,
   })
   @Type(() => Number)
@@ -20,7 +20,7 @@ export class FindOneByCoordinateDto {
   @IsNotEmpty()
   y: number;
   @ApiProperty({
-    description: '格子的Z轴坐标',
+    description: '地块的Z轴坐标',
     required: true,
   })
   @Type(() => Number)
