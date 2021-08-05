@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { NotAcceptableException, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { TransformInterceptor } from 'nestjs-general-interceptor';
+
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
@@ -28,6 +30,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.useGlobalGuards(new JWTAuthGuard());
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   app.enableCors({
     origin: configService.get<string[]>('cors.origins'),
@@ -36,7 +39,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Meta Network API')
     .setDescription('Meta Network API')
-    .setVersion('1.0')
+    .setVersion('0.1')
     .addCookieAuth(configService.get<string>('jwt.access_token_key'))
     .build();
 

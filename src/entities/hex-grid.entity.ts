@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -12,21 +13,39 @@ import {
 export class HexGrid {
   @PrimaryGeneratedColumn()
   id: number;
+  @ApiProperty({
+    description: '站点名称。和CMS管理的站点名称保持一致',
+  })
   @Column({
     nullable: false,
     default: '',
-    comment: '和 CMS 管理的站点名称保持一致',
+    comment: '和CMS管理的站点名称保持一致',
   })
   site_name: string;
+  @ApiProperty({
+    description: '格子的X轴坐标',
+  })
   @Column({ nullable: false })
   x: number;
+  @ApiProperty({
+    description: '格子的Y轴坐标',
+  })
   @Column({ nullable: false })
   y: number;
+  @ApiProperty({
+    description: '格子的Z轴坐标',
+  })
   @Column({ nullable: false })
   z: number;
+  @ApiProperty({
+    description: '格子拥有者ID',
+  })
   @Index({ unique: true })
   @Column({ nullable: false, default: 0 })
   user_id: number;
+  @ApiProperty({
+    description: '格子拥有者用户名',
+  })
   @Index()
   @Column({
     nullable: false,
@@ -40,6 +59,10 @@ export class HexGrid {
    * @type {string}
    * @memberof HexGrid
    */
+  @ApiProperty({
+    description:
+      '子域名。和username可以不同。配合系统分配的域名使用。如果用户彻底替换了域名，这个也要保留，以后可以回退到系统分配的域名',
+  })
   @Index({ unique: true })
   @Column({
     nullable: false,
@@ -48,7 +71,9 @@ export class HexGrid {
       '子域名。和 username 可以不同。配合系统分配的域名使用。如果用户彻底替换了域名，这个也要保留，以后可以回退到系统分配的域名',
   })
   subdomain: string;
-
+  @ApiProperty({
+    description: '关联站点ID',
+  })
   @Index()
   @Column({
     nullable: false,
@@ -56,12 +81,9 @@ export class HexGrid {
     comment: '关联站点ID。站点管理相关 API',
   })
   meta_space_site_id: number;
-  /**
-   *配合外部接入直接使用
-   *
-   * @type {string}
-   * @memberof HexGrid
-   */
+  @ApiProperty({
+    description: '关联站点URL',
+  })
   @Index()
   @Column({
     nullable: false,
@@ -70,12 +92,9 @@ export class HexGrid {
       '站点URL。违反了第三范式。在这张表起到索引作用。需要和 CMS 服务同步站点信息',
   })
   meta_space_site_url: string;
-  /**
-   *预留： 外部接入的证明链接
-   *
-   * @type {string}
-   * @memberof HexGrid
-   */
+  @ApiProperty({
+    description: '外部关联站点所有权证明URL',
+  })
   @Column({
     nullable: false,
     default: '',

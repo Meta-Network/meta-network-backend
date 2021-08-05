@@ -15,18 +15,13 @@ export class AppController {
     private readonly jwtStrategy: JWTStrategy,
   ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
   @Get('me')
   getCurrentUser(@CurrentUser() user: JWTDecodedUser): JWTDecodedUser {
     return user;
   }
 
-  @Get('jwt-verify-options')
-  getJwtVerifyOptions() {
-    return this.jwtStrategy.getJwtVerifyOptions();
-  }
+  // @Get('jwt-verify-options')
+  // getJwtVerifyOptions() {
+  //   return this.jwtStrategy.getJwtVerifyOptions();
+  // }
 }

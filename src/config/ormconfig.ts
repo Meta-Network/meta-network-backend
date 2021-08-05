@@ -3,19 +3,6 @@ import { readFileSync } from 'fs';
 import { HexGrid } from '../entities/hex-grid.entity';
 import loadConfig from './configuration';
 
-class Config {
-  db: DB;
-}
-
-class DB {
-  host: string;
-  port: number;
-  database: string;
-  username: string;
-  password: string;
-  connect_timeout: number;
-}
-
 const { db } = loadConfig();
 const ca = readFileSync('rds-ca-2019-root.pem').toString();
 // console.log(db);
@@ -34,6 +21,7 @@ module.exports = {
   database: db.database,
   connectTimeout: db.connect_timeout,
   synchronize: false,
+  logging: process.env.NODE_ENV !== 'production',
   entities: [HexGrid],
   migrations: ['*.ts'],
   cli: {
