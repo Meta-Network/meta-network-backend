@@ -1,12 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiCookieAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { CurrentUser } from './auth/jwt-user.decorator';
+import { JWTAuthGuard } from './auth/jwt.guard';
 import { JWTStrategy } from './auth/jwt.strategy';
 import { JWTDecodedUser } from './auth/type';
 
-@ApiCookieAuth()
 @Controller()
 export class AppController {
   constructor(
@@ -15,6 +15,8 @@ export class AppController {
     private readonly jwtStrategy: JWTStrategy,
   ) {}
 
+  @ApiCookieAuth()
+  @UseGuards(JWTAuthGuard)
   @Get('me')
   getCurrentUser(@CurrentUser() user: JWTDecodedUser): JWTDecodedUser {
     return user;

@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Logger,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -36,9 +37,9 @@ import { GeneralResponseDto } from 'src/dto/general-response.dto';
 import { ApiGeneralResponse } from 'src/decorators/api-general-response.decorator';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { ApiGeneralArrayResponse } from 'src/decorators/api-general-array-response.decorator';
+import { JWTAuthGuard } from 'src/auth/jwt.guard';
 
 @ApiTags('hex-grids')
-@ApiCookieAuth()
 @ApiGeneralResponse(HexGrid)
 @ApiUnauthorizedResponse({
   description: '当 Cookies 中的{accessToken}过期或无效时返回',
@@ -54,20 +55,22 @@ export class HexGridsController {
   ) {}
 
   @ApiOperation({
-    summary: '根据ID获取单个地块。如果没有符合条件的地块，不返回data部分',
-  })
-  @Get(':id')
-  async findOneById(@Param('id', ParseIntPipe) id: number) {
-    return await this.hexGridsService.findOne({ id });
-  }
-
-  @ApiOperation({
     summary: '获取当前用户占领的地块。如果还没有，不返回data部分',
   })
+  @ApiCookieAuth()
+  @UseGuards(JWTAuthGuard)
   @Get('mine')
   async findMyHexGrid(@CurrentUser() user: JWTDecodedUser) {
     this.logger.debug('findMyHexGrid', user);
     return this.hexGridsService.findOneByUserId(user.id);
+  }
+
+  @ApiOperation({
+    summary: '根据ID获取单个地块。如果没有符合条件的地块，不返回data部分',
+  })
+  @Get(':id(\\d+)')
+  async findOneById(@Param('id', ParseIntPipe) id: number) {
+    return await this.hexGridsService.findOne(id);
   }
 
   @ApiOperation({
@@ -161,6 +164,8 @@ export class HexGridsController {
   @ApiConflictResponse({
     description: '已经占领过地块、指定地块已被占领等唯一性冲突的情况下返回',
   })
+  @ApiCookieAuth()
+  @UseGuards(JWTAuthGuard)
   @Post()
   async occupyHexGrid(
     @CurrentUser() user: JWTDecodedUser,
