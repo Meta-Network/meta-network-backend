@@ -134,7 +134,8 @@ export class HexGridsController {
   })
   @Get('mine')
   async findMyHexGrid(@CurrentUser() user: JWTDecodedUser) {
-    return this.hexGridsService.findOne({ userId: user.id });
+    this.logger.debug('findMyHexGrid', user);
+    return this.hexGridsService.findOneByUserId(user.id);
   }
 
   @ApiOperation({
