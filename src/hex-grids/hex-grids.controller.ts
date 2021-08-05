@@ -170,22 +170,22 @@ export class HexGridsController {
     return await this.hexGridsService.occupy(occupyHexGridDto, user);
   }
 
-  @ApiOperation({
-    summary: '在占领的地块上建站',
-  })
-  @Post('site')
-  async createHexGridSite(
-    @CurrentUser() user: JWTDecodedUser,
-    @Req() req: Request,
-    @Body() createHexGridSiteDto: CreateHexGridSiteDto,
-  ) {
-    const accessToken =
-      req.cookies[this.configService.get<string>('jwt.access_token_key')];
+  // @ApiOperation({
+  //   summary: '在占领的地块上建站',
+  // })
+  // @Post('site')
+  // async createHexGridSite(
+  //   @CurrentUser() user: JWTDecodedUser,
+  //   @Req() req: Request,
+  //   @Body() createHexGridSiteDto: CreateHexGridSiteDto,
+  // ) {
+  //   const accessToken =
+  //     req.cookies[this.configService.get<string>('jwt.access_token_key')];
 
-    return await this.hexGridsService.createHexGridSite(
-      createHexGridSiteDto,
-      user,
-      accessToken,
-    );
-  }
+  //   return await this.hexGridsService.createHexGridSite(
+  //     createHexGridSiteDto,
+  //     user,
+  //     accessToken,
+  //   );
+  // }
 }
