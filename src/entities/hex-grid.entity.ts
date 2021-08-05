@@ -7,21 +7,23 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AutoDateEntity } from './auto-date.entity';
 
 @Entity()
 @Index(['x', 'y', 'z'], { unique: true })
-export class HexGrid {
+export class HexGrid extends AutoDateEntity {
   @PrimaryGeneratedColumn()
   id: number;
   @ApiProperty({
     description: '站点名称。和CMS管理的站点名称保持一致',
   })
   @Column({
+    name: 'site_name',
     nullable: false,
     default: '',
     comment: '和CMS管理的站点名称保持一致',
   })
-  site_name: string;
+  siteName: string;
   @ApiProperty({
     description: '地块的X轴坐标',
   })
@@ -41,8 +43,8 @@ export class HexGrid {
     description: '地块拥有者ID',
   })
   @Index({ unique: true })
-  @Column({ nullable: false, default: 0 })
-  user_id: number;
+  @Column({ name: 'user_id', nullable: false, default: 0 })
+  userId: number;
   @ApiProperty({
     description: '地块拥有者用户名',
   })
@@ -76,33 +78,32 @@ export class HexGrid {
   })
   @Index()
   @Column({
+    name: 'meta_space_site_id',
     nullable: false,
     default: 0,
     comment: '关联站点ID。站点管理相关 API',
   })
-  meta_space_site_id: number;
+  metaSpaceSiteId: number;
   @ApiProperty({
     description: '关联站点URL',
   })
   @Index()
   @Column({
+    name: 'meta_space_site_url',
     nullable: false,
     default: '',
     comment:
       '站点URL。违反了第三范式。在这张表起到索引作用。需要和 CMS 服务同步站点信息',
   })
-  meta_space_site_url: string;
+  metaSpaceSiteUrl: string;
   @ApiProperty({
     description: '外部关联站点所有权证明URL',
   })
   @Column({
+    name: 'meta_space_site_proof_url',
     nullable: false,
     default: '',
     comment: '站点归属验证用URL。用于后续外部站点接入验证所有权',
   })
-  meta_space_site_proof_url: string;
-  @CreateDateColumn()
-  created_at: Date;
-  @UpdateDateColumn()
-  updated_at: Date;
+  metaSpaceSiteProofUrl: string;
 }

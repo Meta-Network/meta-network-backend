@@ -11,5 +11,5 @@ export class CreateHexGridSiteDto {
   @IsString()
   @IsNotEmpty()
   @Length(3, 32)
-  site_name: string;
+  siteName: string;
 }

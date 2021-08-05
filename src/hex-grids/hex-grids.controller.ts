@@ -14,6 +14,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCookieAuth,
   ApiExtraModels,
   ApiOperation,
@@ -37,7 +39,7 @@ import { ApiGeneralArrayResponse } from 'src/decorators/api-general-array-respon
 
 @ApiTags('hex-grids')
 @ApiCookieAuth()
-@ApiGeneralResponse(HexGrid)
+@ApiGeneralResponse(HexGrid, '调用成功', HttpStatus.OK)
 @ApiUnauthorizedResponse({
   description: '当 Cookies 中的{accessToken}过期或无效时',
 })
@@ -81,20 +83,18 @@ export class HexGridsController {
   @ApiOperation({
     summary: '根据用户ID查询其占领地块。如果没有找到，不返回data部分',
   })
-  @Get('location/by-user-id/:user_id')
-  async findOneByUserId(@Param('user_id', ParseIntPipe) user_id: number) {
-    return await this.hexGridsService.findOneByUserId(user_id);
+  @Get('location/by-user-id/:userId')
+  async findOneByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    return await this.hexGridsService.findOneByUserId(userId);
   }
   @ApiOperation({
     summary: '根据站点ID查询其占领地块。如果没有找到，不返回data部分',
   })
-  @Get('location/by-meta-sapce-site-id/:meta_space_site_id')
+  @Get('location/by-meta-sapce-site-id/:metaSpaceSiteId')
   async findOneByMetaSpaceSiteId(
-    @Param('meta_space_site_id', ParseIntPipe) meta_space_site_id: number,
+    @Param('metaSpaceSiteId', ParseIntPipe) metaSpaceSiteId: number,
   ) {
-    return await this.hexGridsService.findOneByMetaSpaceSiteId(
-      meta_space_site_id,
-    );
+    return await this.hexGridsService.findOneByMetaSpaceSiteId(metaSpaceSiteId);
   }
 
   @ApiOperation({
@@ -102,13 +102,13 @@ export class HexGridsController {
   })
   @Get('location/by-site-url')
   async findOneBySiteUrl(@Query() params: FindOneBySiteUrlDto) {
-    const { site_url } = params;
-    return await this.hexGridsService.findOneByMetaSpaceSiteUrl(site_url);
+    const { siteUrl } = params;
+    return await this.hexGridsService.findOneByMetaSpaceSiteUrl(siteUrl);
   }
   @ApiOperation({
     summary: '根据条件查询已被占领的地块。如果没有找到，data部分为空数组',
   })
-  @ApiGeneralArrayResponse(HexGrid)
+  @ApiGeneralArrayResponse(HexGrid, '调用成功', HttpStatus.OK)
   @HttpCode(HttpStatus.OK)
   @Post('by-filter')
   async findByFilter(@Body() params: FindByFilterDto) {
@@ -134,7 +134,7 @@ export class HexGridsController {
   })
   @Get('mine')
   async findMyHexGrid(@CurrentUser() user: JWTDecodedUser) {
-    return this.hexGridsService.findOne({ user_id: user.id });
+    return this.hexGridsService.findOne({ userId: user.id });
   }
 
   @ApiOperation({
@@ -151,6 +151,12 @@ export class HexGridsController {
     summary: '占领地块',
   })
   @ApiGeneralResponse(HexGrid, '地块占领信息', HttpStatus.CREATED)
+  @ApiBadRequestResponse({
+    description: '指定的坐标不符合要求的情况下返回',
+  })
+  @ApiConflictResponse({
+    description: '已经占领过地块、指定地块已被占领等唯一性冲突的情况下返回',
+  })
   @Post()
   async occupyHexGrid(
     @CurrentUser() user: JWTDecodedUser,

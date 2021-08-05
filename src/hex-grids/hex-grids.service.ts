@@ -26,12 +26,12 @@ export class HexGridsService {
     // 业务校验 - x+y+z=0
     await this.validateCoordinate(occupyHexGridDto);
     // 唯一性校验，一个用户只能有一个地块
-    const user_id = user.id;
-    if (await this.isHexGridExisted({ user_id })) {
+    const userId = user.id;
+    if (await this.isHexGridExisted({ userId })) {
       throw new ConflictException('You already own a grid');
     }
     return await this.hexGridsRepository.save({
-      user_id,
+      userId,
       username: user.username,
       ...occupyHexGridDto,
     });
@@ -45,24 +45,24 @@ export class HexGridsService {
     // 远程调用创建站点
     const siteInfo = await this.createSite(
       {
-        title: createHexGridSiteDto.site_name,
+        title: createHexGridSiteDto.siteName,
       },
       user,
       accessToken,
     );
-    const user_id = user.id;
+    const userId = user.id;
     await this.hexGridsRepository.update(
       {
-        user_id,
+        userId,
       },
       {
-        meta_space_site_id: siteInfo.id,
-        meta_space_site_url: siteInfo.url,
+        metaSpaceSiteId: siteInfo.id,
+        metaSpaceSiteUrl: siteInfo.url,
       },
     );
     // TODO 增加邀请码 （不需要等待）
 
-    return await this.findOne({ user_id });
+    return await this.findOneByUserId(userId);
   }
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
     await this.validateCoordinateSum(createHexGridDto);
@@ -129,36 +129,38 @@ export class HexGridsService {
     return await this.hexGridsRepository.findOne({ subdomain });
   }
 
-  async findOneByUserId(user_id: number): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ user_id });
+  async findOneByUserId(userId: number): Promise<HexGrid> {
+    return await this.hexGridsRepository.findOne({ userId });
   }
 
-  async findOneByMetaSpaceSiteId(meta_space_site_id: number): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ meta_space_site_id });
+  async findOneByMetaSpaceSiteId(metaSpaceSiteId: number): Promise<HexGrid> {
+    return await this.hexGridsRepository.findOne({
+      metaSpaceSiteId,
+    });
   }
 
-  async findOneByMetaSpaceSiteUrl(
-    meta_space_site_url: string,
-  ): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ meta_space_site_url });
+  async findOneByMetaSpaceSiteUrl(metaSpaceSiteUrl: string): Promise<HexGrid> {
+    return await this.hexGridsRepository.findOne({
+      metaSpaceSiteUrl,
+    });
   }
 
   async findByFilter(params: FindByFilterDto) {
     return this.hexGridsRepository
       .createQueryBuilder()
       .where({
-        x: Between(params.x_min, params.x_max),
-        y: Between(params.y_min, params.y_max),
-        z: Between(params.z_min, params.z_max),
+        x: Between(params.xMin, params.xMax),
+        y: Between(params.yMin, params.yMax),
+        z: Between(params.zMin, params.zMax),
       })
       .orderBy({ id: 'ASC' })
       .limit(5000)
       .getMany();
 
     // return await this.hexGridsRepository.find({
-    //   x: Between(params.x_min, params.x_max),
-    //   y: Between(params.y_min, params.y_max),
-    //   z: Between(params.z_min, params.z_max),
+    //   x: Between(params.xMin, params.xMax),
+    //   y: Between(params.yMin, params.yMax),
+    //   z: Between(params.zMin, params.zMax),
     // });
   }
 
@@ -166,9 +168,9 @@ export class HexGridsService {
     return this.hexGridsRepository
       .createQueryBuilder()
       .where({
-        x: Between(params.x_min, params.x_max),
-        y: Between(params.y_min, params.y_max),
-        z: Between(params.z_min, params.z_max),
+        x: Between(params.xMin, params.xMax),
+        y: Between(params.yMin, params.yMax),
+        z: Between(params.zMin, params.zMax),
       })
       .limit(5000)
       .getCount();

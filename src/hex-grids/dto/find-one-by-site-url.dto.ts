@@ -9,5 +9,5 @@ export class FindOneBySiteUrlDto {
   @IsNotEmpty()
   @IsString()
   @IsUrl()
-  site_url: string;
+  siteUrl: string;
 }
