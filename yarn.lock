@@ -690,6 +690,15 @@
   resolved "https://registry.npmjs.org/@nestjs/mapped-types/-/mapped-types-1.0.0.tgz"
   integrity sha512-26AW5jHadLXtvHs+M+Agd9KZ92dDlBrmD0rORlBlvn2KvsWs4JRaKl2mUsrW7YsdZeAu3Hc4ukqyYyDdyCmMWQ==
 
+"@nestjs/microservices@^8.0.6":
+  version "8.0.6"
+  resolved "https://registry.nlark.com/@nestjs/microservices/download/@nestjs/microservices-8.0.6.tgz#66a203af435baf1ea0fb2c1ad7b3d6f3ab8f1b8d"
+  integrity sha1-ZqIDr0Nbrx6g+ywa17PW86uPG40=
+  dependencies:
+    iterare "1.2.1"
+    json-socket "0.3.0"
+    tslib "2.3.0"
+
 "@nestjs/passport@^8.0.0":
   version "8.0.0"
   resolved "https://registry.npmjs.org/@nestjs/passport/-/passport-8.0.0.tgz"
@@ -2284,6 +2293,11 @@ data-urls@^2.0.0:
     abab "^2.0.3"
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
+
+dayjs@^1.10.6:
+  version "1.10.6"
+  resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.6.tgz#288b2aa82f2d8418a6c9d4df5898c0737ad02a63"
+  integrity sha1-KIsqqC8thBimydTfWJjAc3rQKmM=
 
 debug@2.6.9:
   version "2.6.9"
@@ -4118,6 +4132,11 @@ json-schema-traverse@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz"
   integrity sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==
+
+json-socket@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.npm.taobao.org/json-socket/download/json-socket-0.3.0.tgz#f4b953c685bb8e8bd0b72438f5208d9a0799ae07"
+  integrity sha1-9LlTxoW7jovQtyQ49SCNmgeZrgc=
 
 json-stable-stringify-without-jsonify@^1.0.1:
   version "1.0.1"

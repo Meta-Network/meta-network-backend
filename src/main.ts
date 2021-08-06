@@ -29,7 +29,7 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
-  app.useGlobalGuards(new JWTAuthGuard());
+  // app.useGlobalGuards(new JWTAuthGuard());
   app.useGlobalInterceptors(new TransformInterceptor());
 
   app.enableCors({

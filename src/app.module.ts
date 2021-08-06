@@ -1,3 +1,4 @@
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
@@ -48,6 +49,13 @@ const { migrations, ...appOrmConfig } = ormconfig as Record<string, any>;
       ],
       exitOnError: false,
     }),
+    ClientsModule.register([
+      {
+        name: 'UCENTER_MS_CLIENT',
+        transport: Transport.TCP,
+        options: { port: 3098 },
+      },
+    ]),
     // Database Module Configuration
     TypeOrmModule.forRoot(appOrmConfig),
     AuthModule,
