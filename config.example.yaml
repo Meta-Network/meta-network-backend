@@ -1,13 +1,17 @@
 app:
   port:
-
+cors:
+  origins:
 db:
   host:
+  port:
   username:
   password:
   database:
+  connect_timeout:
 
 jwt:
+  access_token_key:
   verify:
     issuer:
     audience:

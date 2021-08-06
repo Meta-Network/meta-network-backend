@@ -7,16 +7,18 @@ import { JWTAuthGuard } from './auth/jwt.guard';
 import { JWTDecodedUser } from './auth/type';
 import dayjs from 'dayjs';
 
-@ApiCookieAuth()
+import { ApiGeneralResponse } from './decorators/api-general-response.decorator';
+
 @Controller()
 export class AppController {
   constructor(
     @Inject('UCENTER_MS_CLIENT') private ucenterClient: ClientProxy,
   ) {}
 
-  @Get('me')
-  getCurrentUser(@CurrentUser() user: JWTDecodedUser): JWTDecodedUser {
-    return user;
+  @ApiGeneralResponse(String)
+  @Get()
+  index() {
+    return 'Welcome to Meta Network!';
   }
 
   @Get('test-invitation')
