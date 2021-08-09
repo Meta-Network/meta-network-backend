@@ -13,21 +13,19 @@ export class AppService {
 
   @OnEvent(HexGridsEvent.OCCUPIED)
   async handleHexGridOccupied(payload: HexGrid) {
-    this.newInvitationSlot(payload.userId);
+    this.newInvitationSlot(payload.userId, HexGridsEvent.OCCUPIED);
     //TODO 可以推送到前端等
   }
 
   getHello() {
-    return this.ucenterClient.send<string>(
-      'hello',
-      { name: 'alice' },
-    );
+    return this.ucenterClient.send<string>('hello', { hello: 'world' });
   }
 
-  async newInvitationSlot(userId: number) {
+  async newInvitationSlot(userId: number, cause: string) {
     return this.ucenterClient.emit<string>('new_invitation_slot', {
       sub: '',
       message: '',
+      cause,
       inviter_user_id: userId,
       matataki_user_id: 0,
       expired_at: dayjs().add(2, 'month').toDate(),
