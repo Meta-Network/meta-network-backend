@@ -65,7 +65,7 @@ export class HexGrid extends AutoDateEntity {
     description:
       '子域名。和username可以不同。配合系统分配的域名使用。如果用户彻底替换了域名，这个也要保留，以后可以回退到系统分配的域名',
   })
-  @Index({ unique: true })
+  @Index()
   @Column({
     nullable: false,
     default: '',
