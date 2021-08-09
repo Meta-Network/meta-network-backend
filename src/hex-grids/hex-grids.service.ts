@@ -88,7 +88,7 @@ export class HexGridsService {
     // }
     // 业务校验 - 不能在禁止占用区内占地
     if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) <= 10) {
-      throw new BadRequestException('Invalid coordinate: Forbidden Zoneß');
+      throw new BadRequestException('Invalid coordinate: Forbidden Zone');
     }
 
     // 业务校验 - 必须和现有的地块相邻
