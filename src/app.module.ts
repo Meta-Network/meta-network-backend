@@ -60,15 +60,23 @@ const { migrations, ...appOrmConfig } = ormconfig as Record<string, any>;
       exitOnError: false,
     }),
     EventEmitterModule.forRoot(),
-    ClientsModule.registerAsync([
+    ClientsModule.register([
+    // ClientsModule.registerAsync([
       {
         name: 'UCENTER_MS_CLIENT',
-        imports: [ConfigModule],
-        useFactory: async (configService: ConfigService) =>
-          configService.get<ClientProviderOptions>(
-            'microservice.clients.ucenter',
-          ),
-        inject: [ConfigService],
+        // imports: [ConfigModule],
+        transport: Transport.NATS,
+        options: {
+          servers: ['nats://localhost:4222'],
+        },
+        // useFactory: async (configService: ConfigService) => {
+        //   const config = configService.get<ClientProviderOptions>(
+        //     'microservice.clients.ucenter',
+        //   );
+        //   console.log(config);
+        //   return config;
+        // },
+        // inject: [ConfigService],
       },
     ]),
     // Database Module Configuration

@@ -18,7 +18,6 @@ async function bootstrap() {
   const microserviceOptions = configService.get<MicroserviceOptions>(
     'microservice.options',
   );
-  console.log('microserviceOptions:' + JSON.stringify(microserviceOptions));
   //MicroserviceOptions;
   app.connectMicroservice<MicroserviceOptions>(microserviceOptions);
   app.useGlobalPipes(
@@ -36,11 +35,11 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
-  // app.useGlobalGuards(new JWTAuthGuard());
   app.useGlobalInterceptors(new TransformInterceptor());
 
   app.enableCors({
     origin: configService.get<string[]>('cors.origins'),
+    credentials: true,
   });
 
   const config = new DocumentBuilder()

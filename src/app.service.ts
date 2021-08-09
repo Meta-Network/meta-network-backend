@@ -18,7 +18,10 @@ export class AppService {
   }
 
   getHello() {
-    return this.ucenterClient.send<string>('hello', null);
+    return this.ucenterClient.send<string>(
+      'hello',
+      { name: 'alice' },
+    );
   }
 
   async newInvitationSlot(userId: number) {
