@@ -23,7 +23,7 @@ module.exports = {
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
   entities: [HexGrid],
-  migrations: ['*.ts'],
+  migrations: ['migration/*.ts'],
   cli: {
     migrationsDir: 'migration',
   },
