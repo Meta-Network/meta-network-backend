@@ -1,24 +1,30 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import dayjs from 'dayjs';
 import { JWTDecodedUser } from 'src/auth/type';
 import { Between, Repository } from 'typeorm';
 import { HexGrid } from '../entities/hex-grid.entity';
 import { CreateHexGridSiteDto } from './dto/create-hex-grid-site.dto';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
+import { HexGridsEvent } from './hex-grids.constant';
 
 @Injectable()
 export class HexGridsService {
   private readonly logger = new Logger(HexGridsService.name);
   constructor(
     @InjectRepository(HexGrid)
-    private hexGridsRepository: Repository<HexGrid>,
+    private readonly hexGridsRepository: Repository<HexGrid>,
+    private eventEmitter: EventEmitter2,
     private readonly configService: ConfigService,
   ) {}
 
@@ -30,11 +36,15 @@ export class HexGridsService {
     if (await this.isHexGridExisted({ userId })) {
       throw new ConflictException('You already own a grid');
     }
-    return await this.hexGridsRepository.save({
+
+    const hexGridEntity = await this.hexGridsRepository.save({
       userId,
       username: user.username,
       ...occupyHexGridDto,
     });
+    // 发送地块被占领的事件
+    this.eventEmitter.emit(HexGridsEvent.OCCUPIED, hexGridEntity);
+    return hexGridEntity;
   }
 
   async createHexGridSite(
@@ -60,10 +70,10 @@ export class HexGridsService {
         metaSpaceSiteUrl: siteInfo.url,
       },
     );
-    // TODO 增加邀请码 （不需要等待）
 
     return await this.findOneByUserId(userId);
   }
+
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
     await this.validateCoordinateSum(createHexGridDto);
     const { x, y, z } = createHexGridDto;

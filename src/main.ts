@@ -9,11 +9,18 @@ import cookieParser from 'cookie-parser';
 import formCors from 'form-cors';
 import helmet from 'helmet';
 import { JWTAuthGuard } from './auth/jwt.guard';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get<ConfigService>(ConfigService);
 
+  const configService = app.get<ConfigService>(ConfigService);
+  const microserviceOptions = configService.get<MicroserviceOptions>(
+    'microservice.options',
+  );
+  console.log('microserviceOptions:' + JSON.stringify(microserviceOptions));
+  //MicroserviceOptions;
+  app.connectMicroservice<MicroserviceOptions>(microserviceOptions);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -45,7 +52,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
+  await app.startAllMicroservices();
   await app.listen(configService.get<string>('app.port'));
 }
 

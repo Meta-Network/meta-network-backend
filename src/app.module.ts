@@ -1,4 +1,11 @@
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import {
+  ClientProvider,
+  ClientProviderOptions,
+  ClientsModule,
+  ClientsModuleOptions,
+  MicroserviceOptions,
+  Transport,
+} from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
@@ -10,7 +17,10 @@ import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
 import { AuthModule } from './auth/auth.module';
 import { HexGridsModule } from './hex-grids/hex-grids.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
 import * as ormconfig from './config/ormconfig';
+
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
 const logFormat = printf((info) => {
@@ -49,11 +59,16 @@ const { migrations, ...appOrmConfig } = ormconfig as Record<string, any>;
       ],
       exitOnError: false,
     }),
-    ClientsModule.register([
+    EventEmitterModule.forRoot(),
+    ClientsModule.registerAsync([
       {
         name: 'UCENTER_MS_CLIENT',
-        transport: Transport.TCP,
-        options: { port: 3098 },
+        imports: [ConfigModule],
+        useFactory: async (configService: ConfigService) =>
+          configService.get<ClientProviderOptions>(
+            'microservice.clients.ucenter',
+          ),
+        inject: [ConfigService],
       },
     ]),
     // Database Module Configuration
