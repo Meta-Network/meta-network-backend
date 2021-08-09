@@ -86,6 +86,11 @@ export class HexGridsService {
     //     if(this.isHexGridExisted({subdomain})){
     //   throw new BadRequestException("Invalid subdomain: This subdomain is already occupied");
     // }
+    // 业务校验 - 不能在禁止占用区内占地
+    if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) <= 10) {
+      throw new BadRequestException('Invalid coordinate: Forbidden Zoneß');
+    }
+
     // 业务校验 - 必须和现有的地块相邻
     if (
       !(await this.isHexGridExisted({
