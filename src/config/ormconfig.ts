@@ -5,8 +5,6 @@ import loadConfig from './configuration';
 
 const { db } = loadConfig();
 const ca = readFileSync('rds-ca-2019-root.pem').toString();
-// console.log(db);
-// console.log(ca);
 
 module.exports = {
   type: 'mysql',
@@ -23,8 +21,4 @@ module.exports = {
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
   entities: [HexGrid],
-  migrations: ['migration/*.ts'],
-  cli: {
-    migrationsDir: 'migration',
-  },
 };
