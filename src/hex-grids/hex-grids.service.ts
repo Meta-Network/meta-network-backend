@@ -1,15 +1,13 @@
 import {
   BadRequestException,
   ConflictException,
-  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
+
 import { ConfigService } from '@nestjs/config';
-import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import dayjs from 'dayjs';
 import { JWTDecodedUser } from 'src/auth/type';
 import { Between, Repository } from 'typeorm';
 import { HexGrid } from '../entities/hex-grid.entity';
@@ -17,6 +15,7 @@ import { CreateHexGridSiteDto } from './dto/create-hex-grid-site.dto';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
 import { HexGridsEvent } from './hex-grids.constant';
+import { ConfigBizService } from 'src/config-biz/config-biz.service';
 
 @Injectable()
 export class HexGridsService {
@@ -26,6 +25,7 @@ export class HexGridsService {
     private readonly hexGridsRepository: Repository<HexGrid>,
     private eventEmitter: EventEmitter2,
     private readonly configService: ConfigService,
+    private readonly configBizService: ConfigBizService,
   ) {}
 
   async occupy(occupyHexGridDto: OccupyHexGridDto, user: JWTDecodedUser) {
@@ -87,7 +87,11 @@ export class HexGridsService {
     //   throw new BadRequestException("Invalid subdomain: This subdomain is already occupied");
     // }
     // 业务校验 - 不能在禁止占用区内占地
-    if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) <= 10) {
+    const forbiddenZoneRadius = await this.getForbiddenZoneRadius();
+    this.logger.debug('forbiddenZoneRadius', forbiddenZoneRadius);
+    if (
+      Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) <= forbiddenZoneRadius
+    ) {
       throw new BadRequestException('Invalid coordinate: Forbidden Zone');
     }
 
@@ -103,6 +107,10 @@ export class HexGridsService {
         'Invalid coordinate: Must be adjacent to an occupied grid',
       );
     }
+  }
+
+  private async getForbiddenZoneRadius() {
+    return this.configBizService.getHexGridForbiddenZoneRadius();
   }
 
   async validateCoordinateSum({ x, y, z }) {

@@ -18,6 +18,7 @@ import { WinstonModule } from 'nest-winston';
 import { AuthModule } from './auth/auth.module';
 import { HexGridsModule } from './hex-grids/hex-grids.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ConfigBizModule } from './config-biz/config-biz.module';
 
 import * as ormconfig from './config/ormconfig';
 
@@ -26,8 +27,6 @@ const { combine, timestamp, printf, metadata, label } = winston.format;
 const logFormat = printf((info) => {
   return `${info.timestamp} ${info.level} [${info.label}]: ${info.message}`;
 });
-
-const { migrations, ...appOrmConfig } = ormconfig as Record<string, any>;
 
 @Module({
   imports: [
@@ -60,29 +59,26 @@ const { migrations, ...appOrmConfig } = ormconfig as Record<string, any>;
       exitOnError: false,
     }),
     EventEmitterModule.forRoot(),
-    ClientsModule.register([
-    // ClientsModule.registerAsync([
+    ClientsModule.registerAsync([
       {
         name: 'UCENTER_MS_CLIENT',
-        // imports: [ConfigModule],
-        transport: Transport.NATS,
-        options: {
-          servers: ['nats://localhost:4222'],
+        imports: [ConfigModule],
+
+        useFactory: async (configService: ConfigService) => {
+          const config = configService.get<ClientProviderOptions>(
+            'microservice.clients.ucenter',
+          );
+          console.log(config);
+          return config;
         },
-        // useFactory: async (configService: ConfigService) => {
-        //   const config = configService.get<ClientProviderOptions>(
-        //     'microservice.clients.ucenter',
-        //   );
-        //   console.log(config);
-        //   return config;
-        // },
-        // inject: [ConfigService],
+        inject: [ConfigService],
       },
     ]),
     // Database Module Configuration
-    TypeOrmModule.forRoot(appOrmConfig),
+    TypeOrmModule.forRoot(ormconfig),
     AuthModule,
     HexGridsModule,
+    ConfigBizModule,
   ],
   controllers: [AppController],
   providers: [AppService],
