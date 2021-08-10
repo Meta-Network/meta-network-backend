@@ -13,22 +13,42 @@ export class ConfigBizService {
   constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
 
   onModuleInit() {
+    this.refreshCache();
     WATCHER.on('change', (path: string) => {
-      this.logger.log(`File ${path} changed. Reset cache...`);
-      this.cache.reset();
+      this.logger.log(`File ${path} changed. Refresh cache...`);
+      this.refreshCache();
     });
   }
+
+  refreshCache() {
+    this.reloadValue(KEY_HEX_GRID_FORBIDDEN_ZONE_RADIUS);
+    this.reloadValue(
+      KEY_HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED,
+    );
+  }
+
   async loadValue<T = any>(key: string): Promise<T> {
     let cachedValue = await this.cache.get<T>(key);
     if (cachedValue !== null) {
-      this.logger.debug(`cached value ${key}:`, cachedValue);
+      this.logger.debug(`get cached value: ${key} = ${cachedValue}`);
       return cachedValue;
     }
     const myConfig = config();
     cachedValue = objectPath.get(myConfig, key);
-    console.log(`cachedValue: ${cachedValue}`);
+    this.logger.debug(`set cachedValue: ${key} = ${cachedValue}`);
     await this.cache.set(key, cachedValue);
     return await this.cache.get<T>(key);
+  }
+
+  async reloadValue<T = any>(key: string): Promise<T> {
+    try {
+      this.logger.log(`reload cache: ${key}`);
+
+      await this.cache.del(key);
+      return await this.loadValue(key);
+    } catch (err) {
+      this.logger.error(`reload cache: ${key} error`, err);
+    }
   }
 
   async getHexGridForbiddenZoneRadius(): Promise<number> {
