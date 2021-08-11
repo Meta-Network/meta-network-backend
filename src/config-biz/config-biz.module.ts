@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, CacheModuleOptions, Module } from '@nestjs/common';
 import { ConfigBizService } from './config-biz.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -7,12 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     ConfigModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        return {
-          ttl: configService.get<number>('cache.biz.ttl'),
-          max: configService.get<number>('cache.biz.max-items'),
-        };
-      },
+      useFactory: (configService: ConfigService) =>
+        configService.get<CacheModuleOptions>('cache.biz'),
       inject: [ConfigService],
     }),
   ],

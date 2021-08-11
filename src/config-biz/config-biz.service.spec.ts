@@ -43,24 +43,26 @@ describe('ConfigBizService', () => {
     });
   });
   describe('getHexGridForbiddenZoneRadius', () => {
-    it('should be configValue', async () => {
-      expect(await service.getHexGridForbiddenZoneRadius()).toBe(
-        config().hex_grid.forbidden_zone.radius,
-      );
+    it('should match the (valid) value specified in the configuration file (config.biz.development.yaml)', async () => {
+      let configValue = config().hex_grid.forbidden_zone.radius;
+      if (!(configValue > 0)) {
+        configValue = 0;
+      }
+      expect(await service.getHexGridForbiddenZoneRadius()).toBe(configValue);
     });
-    it('should be the same', async () => {
+    it('same calls should be the same result', async () => {
       const value1 = await service.getHexGridForbiddenZoneRadius();
       const value2 = await service.getHexGridForbiddenZoneRadius();
       expect(value2).toBe(value1);
     });
-    it('should be 20', async () => {
+    it('should be 20 when the value specified in the config object is 20', async () => {
       expect(
         await service.getHexGridForbiddenZoneRadius({
           hex_grid: { forbidden_zone: { radius: 20 } },
         }),
       ).toBe(20);
     });
-    it('should be 0', async () => {
+    it('should be 0 when the value specified in the config object is less than 0', async () => {
       expect(
         await service.getHexGridForbiddenZoneRadius({
           hex_grid: { forbidden_zone: { radius: -1 } },
@@ -75,7 +77,7 @@ describe('ConfigBizService', () => {
     });
   });
   describe('isNewInvitationSlotCreatedOnHexGridOccupiedEnabled', () => {
-    it('should be configValue', async () => {
+    it('should match the value specified in the configuration file (config.biz.development.yaml)', async () => {
       expect(
         await service.isNewInvitationSlotCreatedOnHexGridOccupiedEnabled(),
       ).toBe(
@@ -83,7 +85,7 @@ describe('ConfigBizService', () => {
           .new_invitation_slot_created_on_hex_grid_occupied,
       );
     });
-    it('should be false', async () => {
+    it('should return false when config is set to false', async () => {
       expect(
         await service.isNewInvitationSlotCreatedOnHexGridOccupiedEnabled({
           hex_grid: {
@@ -95,10 +97,7 @@ describe('ConfigBizService', () => {
       ).toBe(false);
     });
     it('should load value', async () => {
-      const spy = jest.spyOn(
-        service,
-        'isNewInvitationSlotCreatedOnHexGridOccupiedEnabled',
-      );
+      const spy = jest.spyOn(service, 'loadValue');
       expect(spy).toHaveBeenCalledTimes(0);
       await service.isNewInvitationSlotCreatedOnHexGridOccupiedEnabled();
       expect(spy).toHaveBeenCalledTimes(1);
@@ -106,8 +105,12 @@ describe('ConfigBizService', () => {
   });
 
   describe('reloadCache', () => {
-    it('should log error', async () => {
-      service.reloadValue('HEX_GRID_FORBIDDEN_ZONE_RADIUS', {});
+    it('should be undefined when key is not existed', async () => {
+      const value = await service.reloadValue(
+        'HEX_GRID_FORBIDDEN_ZONE_RADIUS', // wrong key
+        {},
+      );
+      expect(value).toBeUndefined();
     });
   });
 });
