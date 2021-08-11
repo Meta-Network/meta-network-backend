@@ -1,6 +1,6 @@
 import { applyDecorators, HttpStatus, Type } from '@nestjs/common';
 import { ApiResponse, getSchemaPath } from '@nestjs/swagger';
-import { GeneralResponseDto } from 'src/dto/general-response.dto';
+import { GeneralResponseDto } from '../dto/general-response.dto';
 
 export const ApiGeneralResponse = <TModel extends Type<any>>(
   model: TModel,

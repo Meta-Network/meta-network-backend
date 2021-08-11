@@ -1,9 +1,5 @@
-import { Get, Controller, Inject, UseGuards } from '@nestjs/common';
-import { ApiCookieAuth } from '@nestjs/swagger';
-import { CurrentUser } from './auth/jwt-user.decorator';
+import { Get, Controller } from '@nestjs/common';
 
-import { JWTAuthGuard } from './auth/jwt.guard';
-import { JWTDecodedUser } from './auth/type';
 import { ApiGeneralResponse } from './decorators/api-general-response.decorator';
 import { AppService } from './app.service';
 
@@ -17,6 +13,7 @@ export class AppController {
     return 'Welcome to Meta Network!';
   }
 
+  @ApiGeneralResponse(String)
   @Get('hello')
   hello() {
     return this.appService.getHello();

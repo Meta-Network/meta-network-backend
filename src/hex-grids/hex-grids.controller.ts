@@ -24,20 +24,18 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Request } from 'express';
-import { CurrentUser } from 'src/auth/jwt-user.decorator';
-import { JWTDecodedUser } from 'src/auth/type';
-import { HexGrid } from 'src/entities/hex-grid.entity';
-import { CreateHexGridSiteDto } from './dto/create-hex-grid-site.dto';
+import { CurrentUser } from '../auth/jwt-user.decorator';
+import { JWTDecodedUser } from '../auth/type';
+import { HexGrid } from '../entities/hex-grid.entity';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
 import { HexGridsService } from './hex-grids.service';
 import { FindOneByCoordinateDto } from './dto/find-one-by-coordinate.dto';
 import { FindOneBySiteUrlDto } from './dto/find-one-by-site-url.dto';
-import { FindOneBySubdomainDto } from './dto/find-one-by-subdomain.dto';
-import { GeneralResponseDto } from 'src/dto/general-response.dto';
-import { ApiGeneralResponse } from 'src/decorators/api-general-response.decorator';
+import { GeneralResponseDto } from '../dto/general-response.dto';
+import { ApiGeneralResponse } from '../decorators/api-general-response.decorator';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
-import { ApiGeneralArrayResponse } from 'src/decorators/api-general-array-response.decorator';
-import { JWTAuthGuard } from 'src/auth/jwt.guard';
+import { ApiGeneralArrayResponse } from '../decorators/api-general-array-response.decorator';
+import { JWTAuthGuard } from '../auth/jwt.guard';
 
 @ApiTags('hex-grids')
 @ApiGeneralResponse(HexGrid)
@@ -49,10 +47,7 @@ import { JWTAuthGuard } from 'src/auth/jwt.guard';
 export class HexGridsController {
   private readonly logger = new Logger(HexGridsController.name);
 
-  constructor(
-    private readonly hexGridsService: HexGridsService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly hexGridsService: HexGridsService) {}
 
   @ApiOperation({
     summary: '获取当前用户占领的地块。如果还没有，不返回data部分',

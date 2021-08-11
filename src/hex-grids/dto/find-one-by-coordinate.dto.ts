@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
-import { HEX_GRID_COORDINATE_MAX } from 'src/constants';
+import { HEX_GRID_COORDINATE_MAX } from '../../constants';
 
 export class FindOneByCoordinateDto {
   @ApiProperty({

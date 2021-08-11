@@ -6,9 +6,15 @@ describe('HexGridsController', () => {
   let controller: HexGridsController;
 
   beforeEach(async () => {
+    const service = new HexGridsService(null, null, null);
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HexGridsController],
-      providers: [HexGridsService],
+      providers: [
+        {
+          provide: HexGridsService,
+          useFactory: () => service,
+        },
+      ],
     }).compile();
 
     controller = module.get<HexGridsController>(HexGridsController);

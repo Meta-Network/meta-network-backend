@@ -8,14 +8,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { JWTDecodedUser } from 'src/auth/type';
+import { JWTDecodedUser } from '../auth/type';
 import { Between, Repository } from 'typeorm';
 import { HexGrid } from '../entities/hex-grid.entity';
-import { CreateHexGridSiteDto } from './dto/create-hex-grid-site.dto';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
 import { HexGridsEvent } from './hex-grids.constant';
-import { ConfigBizService } from 'src/config-biz/config-biz.service';
+import { ConfigBizService } from '../config-biz/config-biz.service';
 
 @Injectable()
 export class HexGridsService {
@@ -24,7 +23,6 @@ export class HexGridsService {
     @InjectRepository(HexGrid)
     private readonly hexGridsRepository: Repository<HexGrid>,
     private eventEmitter: EventEmitter2,
-    private readonly configService: ConfigService,
     private readonly configBizService: ConfigBizService,
   ) {}
 
@@ -45,33 +43,6 @@ export class HexGridsService {
     // 发送地块被占领的事件
     this.eventEmitter.emit(HexGridsEvent.OCCUPIED, hexGridEntity);
     return hexGridEntity;
-  }
-
-  async createHexGridSite(
-    createHexGridSiteDto: CreateHexGridSiteDto,
-    user: JWTDecodedUser,
-    accessToken: string,
-  ) {
-    // 远程调用创建站点
-    const siteInfo = await this.createSite(
-      {
-        title: createHexGridSiteDto.siteName,
-      },
-      user,
-      accessToken,
-    );
-    const userId = user.id;
-    await this.hexGridsRepository.update(
-      {
-        userId,
-      },
-      {
-        metaSpaceSiteId: siteInfo.id,
-        metaSpaceSiteUrl: siteInfo.url,
-      },
-    );
-
-    return await this.findOneByUserId(userId);
   }
 
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
@@ -120,19 +91,6 @@ export class HexGridsService {
         'Invalid coordinate: The sum of the coordinates must be zero',
       );
     }
-  }
-
-  async createSite(
-    createSiteRequest: { title: string },
-    user: JWTDecodedUser,
-    accessToken: string,
-  ) {
-    // 分配子域名
-    const subdomain = user.username || `user-${user.id}`;
-    return {
-      id: 0,
-      url: 'https://subdomain.metaspace.xyz',
-    };
   }
 
   async findOne(condition): Promise<HexGrid> {
