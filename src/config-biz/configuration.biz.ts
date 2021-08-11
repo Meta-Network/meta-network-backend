@@ -4,7 +4,7 @@ import * as chokidar from 'chokidar';
 import { join } from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const YAML_CONFIG_FILENAME =
+export const YAML_CONFIG_FILENAME =
   process.env.NODE_ENV === 'production'
     ? 'config.biz.production.yaml'
     : 'config.biz.development.yaml';

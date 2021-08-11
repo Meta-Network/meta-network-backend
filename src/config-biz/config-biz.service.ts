@@ -15,8 +15,8 @@ export class ConfigBizService {
   private logger = new Logger(ConfigBizService.name);
   constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
 
-  onModuleInit() {
-    this.logger.debug('onModuleInit');
+  onApplicationBootstrap() {
+    this.logger.debug('onApplicationBootstrap');
     this.refreshCache();
     WATCHER.on('change', (path: string) => {
       this.logger.log(`File ${path} changed. Refresh cache...`);
@@ -24,7 +24,7 @@ export class ConfigBizService {
     });
   }
 
-  private refreshCache() {
+  refreshCache(): void {
     // 统一刷新就不需要每个值都读取 YAML
     const myConfig = config();
     AVAILABLE_KEYS.forEach((key) => {
@@ -32,27 +32,26 @@ export class ConfigBizService {
     });
   }
 
-  private async loadValue<T = any>(
-    key: string,
-    myConfig = config(),
-  ): Promise<T> {
-    console.log(myConfig);
-    let cachedValue = await this.cache.get<T>(key);
-    if (cachedValue !== null) {
+  async loadValue<T = any>(key: string, myConfig = config()): Promise<T> {
+    // console.log(myConfig);
+    const cachedValue = await this.cache.get<T>(key);
+    // console.log('cachedValue: ' + cachedValue);
+    if (cachedValue !== undefined && cachedValue !== null) {
       this.logger.debug(`get cached value: ${key} = ${cachedValue}`);
       return cachedValue;
     }
+    return this.setCacheValue(key, myConfig);
+  }
 
-    cachedValue = objectPath.get(myConfig, key);
+  async setCacheValue<T = any>(key: string, myConfig = config()) {
+    const cachedValue = objectPath.get(myConfig, key);
+    // console.log(`objectPath ${key} = ${cachedValue}`);
     this.logger.debug(`set cachedValue: ${key} = ${cachedValue}`);
     await this.cache.set(key, cachedValue);
     return await this.cache.get<T>(key);
   }
 
-  private async reloadValue<T = any>(
-    key: string,
-    myConfig = config(),
-  ): Promise<T> {
+  async reloadValue<T = any>(key: string, myConfig = config()): Promise<T> {
     try {
       this.logger.log(`reload cache: ${key}`);
 
@@ -63,13 +62,23 @@ export class ConfigBizService {
     }
   }
 
-  async getHexGridForbiddenZoneRadius(): Promise<number> {
-    return this.loadValue<number>(HEX_GRID_FORBIDDEN_ZONE_RADIUS);
+  async getHexGridForbiddenZoneRadius(myConfig = config()): Promise<number> {
+    const configValue = await this.loadValue<number>(
+      HEX_GRID_FORBIDDEN_ZONE_RADIUS,
+      myConfig,
+    );
+    if (configValue > 0) {
+      return configValue;
+    }
+    return 0;
   }
 
-  async isNewInvitationSlotCreatedOnHexGridOccupiedEnabled(): Promise<boolean> {
+  async isNewInvitationSlotCreatedOnHexGridOccupiedEnabled(
+    myConfig = config(),
+  ): Promise<boolean> {
     return this.loadValue<boolean>(
       HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED,
+      myConfig,
     );
   }
 }
