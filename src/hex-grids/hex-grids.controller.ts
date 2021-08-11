@@ -142,6 +142,15 @@ export class HexGridsController {
   }
 
   @ApiOperation({
+    summary: '获取不可用区域半径',
+  })
+  @ApiGeneralResponse(Number)
+  @Get('forbidden-zone/radius')
+  async getForbiddenZoneRadius() {
+    return await this.hexGridsService.getForbiddenZoneRadius();
+  }
+
+  @ApiOperation({
     summary: '校验坐标是否可用',
   })
   @ApiGeneralResponse(Boolean)

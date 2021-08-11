@@ -109,7 +109,7 @@ export class HexGridsService {
     }
   }
 
-  private async getForbiddenZoneRadius() {
+  async getForbiddenZoneRadius() {
     return this.configBizService.getHexGridForbiddenZoneRadius();
   }
 
