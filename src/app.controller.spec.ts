@@ -10,9 +10,7 @@ describe('AppController', () => {
     const appService = new AppService(null, null);
     jest
       .spyOn(appService, 'getHello')
-      .mockImplementation(
-        () => new Observable((subscriber) => subscriber.next('Hello, World!')),
-      );
+      .mockImplementation(async () => 'Hello, World!');
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
@@ -32,11 +30,8 @@ describe('AppController', () => {
     });
   });
   describe('hello', () => {
-    it('should return "Hello, World!"', () => {
-      let result;
-      appController.hello().subscribe((message) => {
-        result = message;
-      });
+    it('should return "Hello, World!"', async () => {
+      const result = await appController.hello();
       expect(result).toBe('Hello, World!');
     });
   });

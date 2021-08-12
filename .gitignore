@@ -43,3 +43,14 @@ config.*
 JWT_PRIVATE_KEY.pem
 JWT_PUBLIC_KEY.pub
 JWT_PUBLIC_KEY.pub.*
+test/coverage/clover.xml
+test/coverage/coverage-final.json
+test/coverage/lcov.info
+test/coverage/lcov-report/base.css
+test/coverage/lcov-report/block-navigation.js
+test/coverage/lcov-report/favicon.png
+test/coverage/lcov-report/index.html
+test/coverage/lcov-report/prettify.css
+test/coverage/lcov-report/prettify.js
+test/coverage/lcov-report/sort-arrow-sprite.png
+test/coverage/lcov-report/sorter.js

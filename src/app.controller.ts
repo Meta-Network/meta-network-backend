@@ -15,7 +15,7 @@ export class AppController {
 
   @ApiGeneralResponse(String)
   @Get('hello')
-  hello() {
-    return this.appService.getHello();
+  async hello() {
+    return await this.appService.getHello();
   }
 }

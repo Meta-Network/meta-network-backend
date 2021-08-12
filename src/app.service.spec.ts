@@ -107,17 +107,14 @@ describe('AppService', () => {
     });
   });
   describe('getHello', () => {
-    it('should return the result from UCENTER_MS_CLIENT', () => {
-      let result;
+    it('should return the result from UCENTER_MS_CLIENT', async () => {
       jest
         .spyOn(clientProxy, 'send')
         .mockImplementationOnce(
           (pattern, payload) =>
             new Observable((subscriber) => subscriber.next('Hello, World!')),
         );
-      appService.getHello().subscribe((message) => {
-        result = message;
-      });
+      const result = await appService.getHello();
       expect(result).toBe('Hello, World!');
     });
   });

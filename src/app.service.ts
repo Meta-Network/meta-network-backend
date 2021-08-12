@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { HexGridsEvent } from './hex-grids/hex-grids.constant';
 import { HexGrid } from './entities/hex-grid.entity';
 import { ConfigBizService } from './config-biz/config-biz.service';
+import { first, firstValueFrom, Observable } from 'rxjs';
 
 @Injectable()
 export class AppService {
@@ -22,8 +23,11 @@ export class AppService {
     }
   }
 
-  getHello() {
-    return this.ucenterClient.send<string>('hello', { hello: 'world' });
+  async getHello(): Promise<string> {
+    const result = this.ucenterClient.send<string>('hello', {
+      hello: 'world',
+    });
+    return firstValueFrom(result);
   }
 
   async newInvitationSlot(userId: number, cause: string) {
