@@ -6,9 +6,13 @@ import * as objectPath from 'object-path';
 const HEX_GRID_FORBIDDEN_ZONE_RADIUS = 'hex_grid.forbidden_zone.radius';
 const HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED =
   'hex_grid.feature_flags.new_invitation_slot_created_on_hex_grid_occupied';
+const INVITATION_EXPIRATION_PERIOD_MONTHS =
+  'invitation.expiration_period_months';
+
 const AVAILABLE_KEYS = [
   HEX_GRID_FORBIDDEN_ZONE_RADIUS,
   HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED,
+  INVITATION_EXPIRATION_PERIOD_MONTHS,
 ];
 @Injectable()
 export class ConfigBizService {
@@ -67,10 +71,11 @@ export class ConfigBizService {
       HEX_GRID_FORBIDDEN_ZONE_RADIUS,
       myConfig,
     );
-    if (configValue > 0) {
+
+    if (Number.isInteger(configValue) && configValue >= 0) {
       return configValue;
     }
-    return 0;
+    return 10;
   }
 
   async isNewInvitationSlotCreatedOnHexGridOccupiedEnabled(
@@ -80,5 +85,18 @@ export class ConfigBizService {
       HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED,
       myConfig,
     );
+  }
+
+  async getInvitationExpirationPeriodMonths(
+    myConfig = config(),
+  ): Promise<number> {
+    const configValue = await this.loadValue<number>(
+      INVITATION_EXPIRATION_PERIOD_MONTHS,
+      myConfig,
+    );
+    if (Number.isInteger(configValue) && configValue > 0) {
+      return configValue;
+    }
+    return 1;
   }
 }

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Observable } from 'rxjs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -7,6 +8,11 @@ describe('AppController', () => {
 
   beforeEach(async () => {
     const appService = new AppService(null, null);
+    jest
+      .spyOn(appService, 'getHello')
+      .mockImplementation(
+        () => new Observable((subscriber) => subscriber.next('Hello, World!')),
+      );
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
@@ -20,9 +26,18 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
+  describe('index', () => {
     it('should return "Welcome to Meta Network!"', () => {
       expect(appController.index()).toBe('Welcome to Meta Network!');
+    });
+  });
+  describe('hello', () => {
+    it('should return "Hello, World!"', () => {
+      let result;
+      appController.hello().subscribe((message) => {
+        result = message;
+      });
+      expect(result).toBe('Hello, World!');
     });
   });
 });

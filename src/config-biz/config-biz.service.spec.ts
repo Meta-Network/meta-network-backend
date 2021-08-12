@@ -62,12 +62,26 @@ describe('ConfigBizService', () => {
         }),
       ).toBe(20);
     });
-    it('should be 0 when the value specified in the config object is less than 0', async () => {
+    it('should be 0 when the value specified in the config object is  0', async () => {
+      expect(
+        await service.getHexGridForbiddenZoneRadius({
+          hex_grid: { forbidden_zone: { radius: 0 } },
+        }),
+      ).toBe(0);
+    });
+    it('should be 10 when the value specified in the config object is less than 0', async () => {
       expect(
         await service.getHexGridForbiddenZoneRadius({
           hex_grid: { forbidden_zone: { radius: -1 } },
         }),
-      ).toBe(0);
+      ).toBe(10);
+    });
+    it('should be 10 when the value specified in the config object is not an integer', async () => {
+      expect(
+        await service.getHexGridForbiddenZoneRadius({
+          hex_grid: { forbidden_zone: { radius: 'hehe' } },
+        }),
+      ).toBe(10);
     });
     it('should load value', async () => {
       const spy = jest.spyOn(service, 'loadValue');
@@ -95,6 +109,47 @@ describe('ConfigBizService', () => {
           },
         }),
       ).toBe(false);
+    });
+    it('should load value', async () => {
+      const spy = jest.spyOn(service, 'loadValue');
+      expect(spy).toHaveBeenCalledTimes(0);
+      await service.isNewInvitationSlotCreatedOnHexGridOccupiedEnabled();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('getInvitationExpiration', () => {
+    it('should match the value specified in the configuration file (config.biz.development.yaml)', async () => {
+      expect(await service.getInvitationExpirationPeriodMonths()).toBe(
+        config().invitation.expiration_period_months,
+      );
+    });
+    it('should match the value specified in the config which is greater than 0', async () => {
+      expect(
+        await service.getInvitationExpirationPeriodMonths({
+          invitation: {
+            expiration_period_months: 6,
+          },
+        }),
+      ).toBe(6);
+    });
+
+    it('should be 1 when the value specified in the config less than 1', async () => {
+      expect(
+        await service.getInvitationExpirationPeriodMonths({
+          invitation: {
+            expiration_period_months: 0,
+          },
+        }),
+      ).toBe(1);
+    });
+    it('should be 1 when the value specified in the config is not an integer', async () => {
+      expect(
+        await service.getInvitationExpirationPeriodMonths({
+          invitation: {
+            expiration_period_months: 'hahaha',
+          },
+        }),
+      ).toBe(1);
     });
     it('should load value', async () => {
       const spy = jest.spyOn(service, 'loadValue');

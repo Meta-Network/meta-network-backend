@@ -27,14 +27,34 @@ export class AppService {
   }
 
   async newInvitationSlot(userId: number, cause: string) {
-    return this.ucenterClient.emit<string>('new_invitation_slot', {
+    return this.ucenterClient.emit<void>(
+      'new_invitation_slot',
+      await this.buildInvitation(userId, cause),
+    );
+  }
+
+  async buildInvitation(userId: number, cause: string) {
+    return {
       sub: '',
       message: '',
       cause,
       inviter_user_id: userId,
       matataki_user_id: 0,
-      expired_at: dayjs().add(2, 'month').toDate(),
-    });
+      expired_at: await this.getInvitationExiredAt(),
+    };
+  }
+
+  async getInvitationExiredAt() {
+    return dayjs()
+      .add(
+        await this.configBizService.getInvitationExpirationPeriodMonths(),
+        'month',
+      )
+      .add(1, 'day')
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .toDate();
   }
 
   async onApplicationBootstrap() {
