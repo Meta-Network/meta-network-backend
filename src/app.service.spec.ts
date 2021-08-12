@@ -185,7 +185,7 @@ describe('AppService', () => {
         mockCause,
       );
       const expirationDate = dayjs(invitation.expired_at);
-      console.log(`expirationDate: ${expirationDate}`);
+      // console.log(`expirationDate: ${expirationDate}`);
       const diffMonths = expirationDate.diff(dayjs(), 'months');
       expect(diffMonths).toBe(7);
     });

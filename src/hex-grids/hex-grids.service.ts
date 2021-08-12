@@ -51,7 +51,7 @@ export class HexGridsService {
     // 业务校验 - 该坐标或子域名没有被占用 (关系到子域名相关的业务逻辑在哪里完成)
     if (await this.isHexGridExisted({ x, y, z })) {
       throw new ConflictException(
-        'Invalid coordinate: This coordinate is already occupied',
+        'Invalid coordinate: This grid is already occupied',
       );
     }
     //     if(this.isHexGridExisted({subdomain})){
@@ -153,7 +153,7 @@ export class HexGridsService {
         y: Between(params.yMin, params.yMax),
         z: Between(params.zMin, params.zMax),
       })
-      .limit(5000)
+
       .getCount();
   }
 }
