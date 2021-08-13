@@ -1,12 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { AutoDateEntity } from './auto-date.entity';
 
 @Entity()
@@ -55,6 +48,37 @@ export class HexGrid extends AutoDateEntity {
     comment: '作为社交网络 @ 的身份定位',
   })
   username: string;
+  @ApiProperty({
+    description: '地块拥有者用户昵称',
+  })
+  @Index()
+  @Column({
+    name: 'user_nickname',
+    nullable: false,
+    default: '',
+    comment: '用户昵称，作为搜索条件',
+  })
+  userNickname: string;
+  @ApiProperty({
+    description: '地块拥有者用户个人简介',
+  })
+  @Column({
+    name: 'user_bio',
+    nullable: false,
+    default: '',
+    comment: '用户简介',
+  })
+  userBio: string;
+  @ApiProperty({
+    description: '地块拥有者用户头像',
+  })
+  @Column({
+    name: 'user_avatar',
+    nullable: false,
+    default: '',
+    comment: '用户虚拟形象',
+  })
+  userAvatar: string;
   /**
    * 子域名。二级域名
    *

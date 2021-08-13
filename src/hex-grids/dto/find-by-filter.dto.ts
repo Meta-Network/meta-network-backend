@@ -82,4 +82,13 @@ export class FindByFilterDto {
   @Max(HEX_GRID_COORDINATE_MAX)
   @IsNotEmpty()
   zMax: number;
+
+  @ApiProperty({
+    description: '简单查询条件，支持模糊查询。会用 username,userNickName 匹配',
+    required: true,
+    example: '加菲',
+    minimum: -HEX_GRID_COORDINATE_MAX,
+    maximum: HEX_GRID_COORDINATE_MAX,
+  })
+  simpleQuery: string;
 }
