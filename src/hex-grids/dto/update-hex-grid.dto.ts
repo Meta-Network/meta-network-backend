@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { OccupyHexGridDto } from './occupy-hex-grid.dto';
+import { HexGrid } from '../../entities/hex-grid.entity';
 
-export class UpdateHexGridDto extends PartialType(OccupyHexGridDto) {}
+export class UpdateHexGridDto extends PartialType(HexGrid) {}

@@ -1,13 +1,26 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { Controller, Logger } from '@nestjs/common';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
+import { AppMsEvent, AppMsMethod } from './constants';
+import { UserDto } from './dto/user.dto';
 import { HexGridsService } from './hex-grids/hex-grids.service';
 
 @Controller()
 export class AppMsController {
+  private logger = new Logger(AppMsController.name);
   constructor(private readonly hexGridsService: HexGridsService) {}
 
-  @MessagePattern('findHexGridByUserId')
+  @MessagePattern(AppMsMethod.FIND_HEX_GRID_BY_USER_ID)
   findHexGridByUserId(userId: number) {
     return this.hexGridsService.findOneByUserId(userId);
+  }
+
+  @EventPattern(AppMsEvent.USER_PROFILE_MODIFIED)
+  handleUserProfileModified(payload: UserDto) {
+    this.logger.log('handleUserProfileModified', payload);
+    this.hexGridsService.updateByUserId({
+      userId: payload.id,
+      username: payload.username,
+      userNickname: payload.nickname,
+    });
   }
 }

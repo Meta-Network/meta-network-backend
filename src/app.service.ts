@@ -5,12 +5,13 @@ import dayjs from 'dayjs';
 import { HexGridsEvent } from './hex-grids/hex-grids.constant';
 import { HexGrid } from './entities/hex-grid.entity';
 import { ConfigBizService } from './config-biz/config-biz.service';
-import { first, firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { UcenterMsClientMethod } from './constants';
 
 @Injectable()
 export class AppService {
   constructor(
-    @Inject('UCENTER_MS_CLIENT') private readonly ucenterClient: ClientProxy,
+    @Inject('UCENTER_MS_CLIENT') private readonly ucenterMsClient: ClientProxy,
     private readonly configBizService: ConfigBizService,
   ) {}
 
@@ -24,15 +25,18 @@ export class AppService {
   }
 
   async getHello(): Promise<string> {
-    const result = this.ucenterClient.send<string>('hello', {
-      hello: 'world',
-    });
+    const result = this.ucenterMsClient.send<string>(
+      UcenterMsClientMethod.HELLO,
+      {
+        hello: 'world',
+      },
+    );
     return firstValueFrom(result);
   }
 
   async newInvitationSlot(userId: number, cause: string) {
-    return this.ucenterClient.emit<void>(
-      'new_invitation_slot',
+    return this.ucenterMsClient.emit<void>(
+      UcenterMsClientMethod.NEW_INVITATION_SLOT,
       await this.buildInvitation(userId, cause),
     );
   }
@@ -62,6 +66,6 @@ export class AppService {
   }
 
   async onApplicationBootstrap() {
-    await this.ucenterClient.connect();
+    await this.ucenterMsClient.connect();
   }
 }

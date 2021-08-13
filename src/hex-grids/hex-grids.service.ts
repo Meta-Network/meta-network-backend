@@ -5,16 +5,16 @@ import {
   Logger,
 } from '@nestjs/common';
 
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JWTDecodedUser } from '../auth/type';
-import { Between, Repository } from 'typeorm';
+import { Between, Like, Repository, SelectQueryBuilder } from 'typeorm';
 import { HexGrid } from '../entities/hex-grid.entity';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
 import { HexGridsEvent } from './hex-grids.constant';
 import { ConfigBizService } from '../config-biz/config-biz.service';
+import { UpdateHexGridDto } from './dto/update-hex-grid.dto';
 
 @Injectable()
 export class HexGridsService {
@@ -43,6 +43,20 @@ export class HexGridsService {
     // 发送地块被占领的事件
     this.eventEmitter.emit(HexGridsEvent.OCCUPIED, hexGridEntity);
     return hexGridEntity;
+  }
+
+  async updateByUserId(updateHexGridDto: UpdateHexGridDto) {
+    await this.hexGridsRepository.update(
+      { userId: updateHexGridDto.userId },
+      updateHexGridDto,
+    );
+  }
+
+  async updateByMetaSpaceSiteId(updateHexGridDto: UpdateHexGridDto) {
+    await this.hexGridsRepository.update(
+      { metaSpaceSiteId: updateHexGridDto.metaSpaceSiteId },
+      updateHexGridDto,
+    );
   }
 
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
@@ -127,33 +141,46 @@ export class HexGridsService {
   }
 
   async findByFilter(params: FindByFilterDto) {
-    return this.hexGridsRepository
-      .createQueryBuilder()
-      .where({
-        x: Between(params.xMin, params.xMax),
-        y: Between(params.yMin, params.yMax),
-        z: Between(params.zMin, params.zMax),
-      })
+    return this.createFilter(
+      this.hexGridsRepository.createQueryBuilder(),
+      params,
+    )
       .orderBy({ id: 'ASC' })
       .limit(5000)
       .getMany();
-
-    // return await this.hexGridsRepository.find({
-    //   x: Between(params.xMin, params.xMax),
-    //   y: Between(params.yMin, params.yMax),
-    //   z: Between(params.zMin, params.zMax),
-    // });
   }
 
   async countByFilter(params: FindByFilterDto) {
-    return this.hexGridsRepository
-      .createQueryBuilder()
-      .where({
-        x: Between(params.xMin, params.xMax),
-        y: Between(params.yMin, params.yMax),
-        z: Between(params.zMin, params.zMax),
-      })
+    return this.createFilter(
+      this.hexGridsRepository.createQueryBuilder(),
+      params,
+    ).getCount();
+  }
 
-      .getCount();
+  protected createFilter(
+    selectQueryBuilder: SelectQueryBuilder<HexGrid>,
+    params: FindByFilterDto,
+  ) {
+    const { simpleQuery } = params;
+    selectQueryBuilder = selectQueryBuilder.where({
+      x: Between(params.xMin, params.xMax),
+      y: Between(params.yMin, params.yMax),
+      z: Between(params.zMin, params.zMax),
+    });
+    if (
+      simpleQuery !== undefined &&
+      simpleQuery !== null &&
+      simpleQuery.trim() !== ''
+    ) {
+      selectQueryBuilder = selectQueryBuilder.andWhere(
+        '(HexGrid.username LIKE :username OR HexGrid.userNickname LIKE :userNickname OR HexGrid.metaSpaceSiteUrl LIKE :metaSpaceSiteUrl)',
+        {
+          username: `${simpleQuery}%`,
+          userNickname: `%${simpleQuery}%`,
+          metaSpaceSiteUrl: `%${simpleQuery}%`,
+        },
+      );
+    }
+    return selectQueryBuilder;
   }
 }
