@@ -1,5 +1,11 @@
 import { Controller, Logger } from '@nestjs/common';
-import { EventPattern, MessagePattern } from '@nestjs/microservices';
+import {
+  Ctx,
+  EventPattern,
+  MessagePattern,
+  NatsContext,
+  Payload,
+} from '@nestjs/microservices';
 import { AppMsEvent, AppMsMethod } from './constants';
 import { SiteInfoDto } from './dto/site-info.dto';
 import { UserDto } from './dto/user.dto';
@@ -15,8 +21,17 @@ export class AppMsController {
     return this.hexGridsService.findOneByUserId(userId);
   }
 
+  @MessagePattern('hello')
+  handleHello(@Payload() payload: string, @Ctx() context: NatsContext) {
+    this.logger.log('handleHello', payload);
+    return `Hello, ${payload}`;
+  }
+
   @EventPattern(AppMsEvent.USER_PROFILE_MODIFIED)
-  handleUserProfileModified(payload: UserDto) {
+  handleUserProfileModified(
+    @Payload() payload: any,
+    @Ctx() context: NatsContext,
+  ) {
     this.logger.log('handleUserProfileModified', payload);
     this.hexGridsService.updateByUserId({
       userId: payload.id,
