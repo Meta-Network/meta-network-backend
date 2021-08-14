@@ -1,6 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { AppMsEvent, AppMsMethod } from './constants';
+import { SiteInfoDto } from './dto/site-info.dto';
 import { UserDto } from './dto/user.dto';
 import { HexGridsService } from './hex-grids/hex-grids.service';
 
@@ -22,5 +23,11 @@ export class AppMsController {
       username: payload.username,
       userNickname: payload.nickname,
     });
+  }
+
+  @EventPattern(AppMsEvent.META_SPACE_SITE_CREATED)
+  handleMetaSpaceSiteCreated(payload: SiteInfoDto) {
+    this.logger.log('handleMetaSpaceSiteCreated', payload);
+    // TODO
   }
 }
