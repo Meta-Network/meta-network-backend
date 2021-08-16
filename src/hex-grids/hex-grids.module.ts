@@ -9,5 +9,6 @@ import { ConfigBizModule } from '../config-biz/config-biz.module';
   imports: [TypeOrmModule.forFeature([HexGrid]), ConfigBizModule],
   controllers: [HexGridsController],
   providers: [HexGridsService],
+  exports: [HexGridsService],
 })
 export class HexGridsModule {}
