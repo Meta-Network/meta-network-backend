@@ -89,6 +89,5 @@ export class FindByFilterDto {
     required: false,
     example: '加菲',
   })
-  @IsString()
   simpleQuery: string;
 }
