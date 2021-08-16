@@ -21,13 +21,14 @@ export class AppMsController {
     return this.hexGridsService.findOneByUserId(userId);
   }
 
-  @MessagePattern('hello')
-  handleHello(@Payload() payload: string, @Ctx() context: NatsContext) {
+  @MessagePattern('hello2')
+  handleHello(@Payload() payload: any, @Ctx() context: NatsContext) {
+    console.log(`Hello, ${payload.name}`);
     this.logger.log('handleHello', payload);
-    return `Hello, ${payload}`;
+    return `Hello, ${payload.name}`;
   }
 
-  @EventPattern(AppMsEvent.USER_PROFILE_MODIFIED)
+  @MessagePattern(AppMsEvent.USER_PROFILE_MODIFIED)
   handleUserProfileModified(
     @Payload() payload: any,
     @Ctx() context: NatsContext,
@@ -40,7 +41,7 @@ export class AppMsController {
     });
   }
 
-  @EventPattern(AppMsEvent.META_SPACE_SITE_CREATED)
+  @MessagePattern(AppMsEvent.META_SPACE_SITE_CREATED)
   handleMetaSpaceSiteCreated(payload: SiteInfoDto) {
     this.logger.log('handleMetaSpaceSiteCreated', payload);
     // TODO
