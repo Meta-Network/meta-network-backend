@@ -8,7 +8,6 @@ import {
 } from '@nestjs/microservices';
 import { AppMsEvent, AppMsMethod } from './constants';
 import { SiteInfoDto } from './dto/site-info.dto';
-import { UserDto } from './dto/user.dto';
 import { HexGridsService } from './hex-grids/hex-grids.service';
 
 @Controller()
@@ -21,26 +20,22 @@ export class AppMsController {
     return this.hexGridsService.findOneByUserId(userId);
   }
 
-  @MessagePattern('hello')
-  handleHello(@Payload() payload: string, @Ctx() context: NatsContext) {
-    this.logger.log('handleHello', payload);
-    return `Hello, ${payload}`;
-  }
-
   @EventPattern(AppMsEvent.USER_PROFILE_MODIFIED)
   handleUserProfileModified(
     @Payload() payload: any,
     @Ctx() context: NatsContext,
   ) {
-    this.logger.log('handleUserProfileModified', payload);
+    this.logger.log('handleUserProfileModified', payload, context.getSubject());
     this.hexGridsService.updateByUserId({
       userId: payload.id,
       username: payload.username,
       userNickname: payload.nickname,
+      userBio: payload.bio,
+      userAvatar: payload.avatar,
     });
   }
 
-  @EventPattern(AppMsEvent.META_SPACE_SITE_CREATED)
+  @MessagePattern(AppMsEvent.META_SPACE_SITE_CREATED)
   handleMetaSpaceSiteCreated(payload: SiteInfoDto) {
     this.logger.log('handleMetaSpaceSiteCreated', payload);
     // TODO

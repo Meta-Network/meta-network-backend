@@ -30,6 +30,7 @@ describe('AppMsController (e2e)', () => {
             transport: Transport.NATS,
             options: {
               servers: ['nats://localhost:4222'],
+              queue: 'meta_network_test_queue',
             },
           },
         ]),
@@ -49,6 +50,7 @@ describe('AppMsController (e2e)', () => {
       transport: Transport.NATS,
       options: {
         servers: ['nats://localhost:4222'],
+        queue: 'meta_network_test_queue',
       },
     });
     await app.startAllMicroservices();
@@ -69,7 +71,7 @@ describe('AppMsController (e2e)', () => {
 
   it('hello', async () => {
     const result = await firstValueFrom(
-      appMsClient.send<string, string>('hello', 'John Smith'),
+      appMsClient.send<string>('hello2', { name: 'John Smith' }),
     );
     expect(result).toBe('Hello, John Smith');
   });

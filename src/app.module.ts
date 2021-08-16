@@ -21,6 +21,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigBizModule } from './config-biz/config-biz.module';
 
 import * as ormconfig from './config/ormconfig';
+import { AppMsController } from './app.ms.controller';
 
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
@@ -80,7 +81,7 @@ const logFormat = printf((info) => {
     HexGridsModule,
     ConfigBizModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AppMsController],
   providers: [AppService],
 })
 export class AppModule {}
