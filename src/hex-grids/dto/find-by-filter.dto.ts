@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { HEX_GRID_COORDINATE_MAX } from '../../constants';
 
 export class FindByFilterDto {
@@ -83,11 +90,14 @@ export class FindByFilterDto {
   @IsNotEmpty()
   zMax: number;
 
+  // 设置了默认值，在前端不传这个条件的时候不会违反验证条件
   @ApiProperty({
     description:
       '简单查询条件，支持模糊查询。会用 username,userNickName，metaSpaceSiteUrl 匹配',
     required: false,
     example: '加菲',
   })
-  simpleQuery: string;
+  @IsString()
+  @MaxLength(100)
+  simpleQuery? = '';
 }
