@@ -1,12 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { AppMsController } from '../src/app.ms.controller';
 import { ClientProxy, ClientsModule, Transport } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { HexGridsService } from '../src/hex-grids/hex-grids.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { HexGrid } from '../src/entities/hex-grid.entity';
+import { AppMsMethod } from '../src/constants';
+import { MetaInternalResult } from '@metaio/microservice-model';
 
 describe('AppMsController (e2e)', () => {
   let app: INestApplication;
@@ -69,10 +68,38 @@ describe('AppMsController (e2e)', () => {
     }
   });
 
-  it('hello', async () => {
+  it('findHexGridByUserId', async () => {
+    const mockHexGrid = {
+      id: 1,
+      x: 1,
+      y: 11,
+      z: -12,
+      userId: 2,
+      username: 'bob',
+      userNickname: 'Bob',
+      userAvatar: 'https://image.meta.fan/bob.png',
+      userBio: 'Some Description',
+      siteName: '',
+      subdomain: '',
+      metaSpaceSiteId: 0,
+      metaSpaceSiteUrl: '',
+      metaSpaceSiteProofUrl: '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    jest
+      .spyOn(hexGridsService, 'findOneByUserId')
+      .mockImplementation(async (userId) => mockHexGrid);
     const result = await firstValueFrom(
-      appMsClient.send<string>('hello2', { name: 'John Smith' }),
+      appMsClient.send<MetaInternalResult>(
+        AppMsMethod.FIND_HEX_GRID_BY_USER_ID,
+        2,
+      ),
     );
-    expect(result).toBe('Hello, John Smith');
+    expect(result.statusCode).toBe(HttpStatus.OK);
+    result.data.createdAt = new Date(result.data.createdAt);
+    result.data.updatedAt = new Date(result.data.updatedAt);
+
+    expect(result.data).toEqual(mockHexGrid);
   });
 });
