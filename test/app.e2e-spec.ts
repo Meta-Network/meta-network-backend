@@ -25,7 +25,7 @@ describe('AppController (e2e)', () => {
   let appService: AppService;
 
   beforeEach(async () => {
-    appService = new MockAppService(null, null);
+    appService = new MockAppService(null, null, null, null, null, null);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [],

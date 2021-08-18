@@ -110,7 +110,9 @@ export class AppService {
   }
   async onApplicationBootstrap() {
     await this.ucenterMsClient.connect();
-    this.addStartSyncUserProfileJob();
+    if (this.configService.get<boolean>('cron.enabled')) {
+      this.addStartSyncUserProfileJob();
+    }
     console.log(this.schedulerRegistry.getCronJobs());
   }
 
