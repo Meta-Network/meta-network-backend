@@ -36,10 +36,11 @@ export class SyncTasksService {
     private readonly syncTasksServiceRepository: Repository<SyncTask>,
   ) {}
 
-  async findLastOneByType(type: SyncTaskType) {
+  async findLastSuccessOneByType(type: SyncTaskType) {
     return await this.syncTasksServiceRepository.findOne(
       {
         type,
+        state: SyncTaskState.SUCCESS,
       },
       {
         order: { id: 'DESC' },
@@ -54,7 +55,7 @@ export class SyncTasksService {
   async syncUserProfile(
     callback: (modifiedAfter: Date) => Promise<SyncTaskCallbackResult>,
   ) {
-    const lastSyncTask = await this.findLastOneByType(
+    const lastSyncTask = await this.findLastSuccessOneByType(
       SyncTaskType.USER_PROFILE,
     );
     const modifiedAfter = this.getModifiedAfter(lastSyncTask);

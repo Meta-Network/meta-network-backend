@@ -107,7 +107,7 @@ describe('SyncTasksService', () => {
     });
   });
 
-  describe('findLastOneByType', () => {
+  describe('findLastSuccessOneByType', () => {
     it('should return the last one when there are many entities with the type', async () => {
       await repo.save({
         type: SyncTaskType.SITE_INFO,
@@ -115,13 +115,15 @@ describe('SyncTasksService', () => {
       });
       const entity2 = await repo.save({
         type: SyncTaskType.SITE_INFO,
-        state: SyncTaskState.DOING,
+        state: SyncTaskState.SUCCESS,
       });
 
-      const syncTask = await service.findLastOneByType(SyncTaskType.SITE_INFO);
+      const syncTask = await service.findLastSuccessOneByType(
+        SyncTaskType.SITE_INFO,
+      );
       expect(syncTask.id).toBe(2);
       expect(syncTask.type).toBe(SyncTaskType.SITE_INFO);
-      expect(syncTask.state).toBe(SyncTaskState.DOING);
+      expect(syncTask.state).toBe(SyncTaskState.SUCCESS);
       expect(syncTask).toEqual(entity2);
     });
   });

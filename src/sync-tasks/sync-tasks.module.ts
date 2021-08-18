@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SyncTask } from '../entities/sync-task.entity';
 import { SyncTasksService } from './sync-tasks.service';
-import { SyncTasksController } from './sync-tasks.controller';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientProviderOptions, ClientsModule } from '@nestjs/microservices';
 
 @Module({
-  controllers: [SyncTasksController],
+  imports: [TypeOrmModule.forFeature([SyncTask])],
   providers: [SyncTasksService],
+  exports: [SyncTasksService],
 })
 export class SyncTasksModule {}
