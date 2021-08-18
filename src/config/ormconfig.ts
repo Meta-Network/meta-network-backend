@@ -2,6 +2,7 @@ import * as yaml from 'js-yaml';
 import { readFileSync } from 'fs';
 import { HexGrid } from '../entities/hex-grid.entity';
 import loadConfig from './configuration';
+import { SyncTask } from '../entities/sync-task.entity';
 
 const { db } = loadConfig();
 const ca = readFileSync('rds-ca-2019-root.pem').toString();
@@ -15,7 +16,7 @@ module.exports =
         dropSchema: true,
         // 设置keepConnectionAlive来避免AlreadyHasActiveConnectionError
         keepConnectionAlive: true,
-        entities: [HexGrid],
+        entities: [HexGrid, SyncTask],
       }
     : {
         type: 'mysql',
@@ -31,5 +32,5 @@ module.exports =
         connectTimeout: db.connect_timeout,
         synchronize: false,
         logging: process.env.NODE_ENV !== 'production',
-        entities: [HexGrid],
+        entities: [HexGrid, SyncTask],
       };
