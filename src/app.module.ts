@@ -7,6 +7,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import configuration from './config/configuration';
@@ -22,6 +23,7 @@ import { ConfigBizModule } from './config-biz/config-biz.module';
 
 import * as ormconfig from './config/ormconfig';
 import { AppMsController } from './app.ms.controller';
+import { SyncTasksModule } from './sync-tasks/sync-tasks.module';
 
 const { combine, timestamp, printf, metadata, label } = winston.format;
 
@@ -77,9 +79,11 @@ const logFormat = printf((info) => {
     ]),
     // Database Module Configuration
     TypeOrmModule.forRoot(ormconfig),
+    ScheduleModule.forRoot(),
     AuthModule,
     HexGridsModule,
     ConfigBizModule,
+    SyncTasksModule,
   ],
   controllers: [AppController, AppMsController],
   providers: [AppService],

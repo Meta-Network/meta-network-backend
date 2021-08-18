@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import {
   ClientProxy,
   ClientProxyFactory,
@@ -7,8 +8,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import dayjs from 'dayjs';
 import { Observable } from 'rxjs';
 import { AppService } from './app.service';
+import { ScheduleModule } from '@nestjs/schedule';
+
 import { ConfigBizService } from './config-biz/config-biz.service';
 import { HexGrid } from './entities/hex-grid.entity';
+import { HexGridsService } from './hex-grids/hex-grids.service';
+import { SyncTasksService } from './sync-tasks/sync-tasks.service';
+import { UCenterMsClientMethod } from './constants';
+import { SyncTaskType } from './entities/sync-task.entity';
+import { MetaInternalResult, ServiceCode } from '@metaio/microservice-model';
+import { HttpStatus } from '@nestjs/common';
 
 class MockClientProxy extends ClientProxy {
   protected dispatchEvent<T = any>(packet: ReadPacket<any>): Promise<T> {
@@ -29,44 +38,41 @@ class MockClientProxy extends ClientProxy {
 
 describe('AppService', () => {
   let appService: AppService;
-  let clientProxy: ClientProxy;
+  let ucenterMsClient: ClientProxy;
   const configBizService = new ConfigBizService(null);
+  const configService = new ConfigService();
+  const hexGridsService = new HexGridsService(null, null, null);
+  const syncTasksService = new SyncTasksService(null, null);
   beforeEach(async () => {
-    clientProxy = new MockClientProxy();
+    ucenterMsClient = new MockClientProxy();
     const app: TestingModule = await Test.createTestingModule({
+      imports: [ScheduleModule.forRoot()],
       providers: [
         AppService,
+
         {
           provide: 'UCENTER_MS_CLIENT',
-          useFactory: () => clientProxy,
+          useFactory: () => ucenterMsClient,
         },
         {
           provide: ConfigBizService,
           useFactory: () => configBizService,
         },
+        {
+          provide: ConfigService,
+          useFactory: () => configService,
+        },
+        {
+          provide: HexGridsService,
+          useFactory: () => hexGridsService,
+        },
+        {
+          provide: SyncTasksService,
+          useFactory: () => syncTasksService,
+        },
       ],
     }).compile();
     appService = app.get<AppService>(AppService);
-  });
-
-  describe('handleHexGridOccupied', () => {
-    it('should invoke method "newInvitationSlot" when feature flag "isNewInvitationSlotCreatedOnHexGridOccupiedEnabled" is true', async () => {
-      jest
-        .spyOn(
-          configBizService,
-          'isNewInvitationSlotCreatedOnHexGridOccupiedEnabled',
-        )
-        .mockImplementation(async () => true);
-      const newInvitationSlotSpy = jest
-        .spyOn(appService, 'newInvitationSlot')
-        .mockImplementation(
-          async (userId, payload) =>
-            new Observable((subscriber) => subscriber.next()),
-        );
-      expect(newInvitationSlotSpy).toHaveBeenCalledTimes(0);
-      await appService.handleHexGridOccupied(new HexGrid());
-      expect(newInvitationSlotSpy).toHaveBeenCalledTimes(1);
-    });
   });
 
   describe('handleHexGridOccupied', () => {
@@ -109,7 +115,7 @@ describe('AppService', () => {
   describe('getHello', () => {
     it('should return the result from UCENTER_MS_CLIENT', async () => {
       jest
-        .spyOn(clientProxy, 'send')
+        .spyOn(ucenterMsClient, 'send')
         .mockImplementationOnce(
           (pattern, payload) =>
             new Observable((subscriber) => subscriber.next('Hello, World!')),
@@ -135,7 +141,7 @@ describe('AppService', () => {
         .spyOn(appService, 'buildInvitation')
         .mockImplementation(async (userId, cause) => mockInvitation);
       const emitSpy = jest
-        .spyOn(clientProxy, 'emit')
+        .spyOn(ucenterMsClient, 'emit')
         .mockImplementationOnce(
           (pattern, payload) =>
             new Observable((subscriber) => subscriber.next()),
@@ -150,7 +156,7 @@ describe('AppService', () => {
       );
       expect(buildSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenCalledWith(
-        'new_invitation_slot',
+        UCenterMsClientMethod.NEW_INVITATION_SLOT,
         mockInvitation,
       );
     });
@@ -188,9 +194,85 @@ describe('AppService', () => {
     });
   });
 
+  describe('syncUserProfile', () => {
+    it('should update hex-grids by userId', async () => {
+      let syncTaskEntity;
+      const updatedUsereDtos = [
+        {
+          id: 1,
+          username: 'alice',
+          userNickname: 'Alice',
+          userAvater: 'https://img.meta.fan/alice.png',
+          userBio: 'I am Alice',
+        },
+        {
+          id: 2,
+          username: 'bob',
+          userNickname: 'Bob',
+          userAvater: 'https://img.meta.fan/bob.png',
+          userBio: 'I am Bob',
+        },
+        {
+          id: 3,
+          username: 'carot',
+          userNickname: 'Carot',
+          userAvater: 'https://img.meta.fan/carot.png',
+          userBio: 'I am Carot',
+        },
+      ];
+      let syncTaskType;
+      jest
+        .spyOn(syncTasksService, 'findLastSuccessOneByType')
+        .mockImplementationOnce(async (type) => {
+          syncTaskType = type;
+          return null;
+        });
+      let patternSent: string;
+      let lastSyncDateSent: Date;
+      jest
+        .spyOn(ucenterMsClient, 'send')
+        .mockImplementationOnce((pattern: string, data: any) => {
+          patternSent = pattern;
+          lastSyncDateSent = data.modifiedAfter;
+          return new Observable((subscriber) =>
+            subscriber.next(
+              new MetaInternalResult({
+                statusCode: HttpStatus.OK,
+                serviceCode: ServiceCode.UCENTER,
+                retryable: false,
+
+                message: 'ok',
+                data: updatedUsereDtos,
+              }),
+            ),
+          );
+        });
+      jest
+        .spyOn(syncTasksService, 'save')
+        .mockImplementation((syncTask) => (syncTaskEntity = syncTask));
+      const updateHexGridDtos = [];
+      const updateHexGridByUserIdSpy = jest
+        .spyOn(hexGridsService, 'updateByUserId')
+        .mockImplementation(async (updateHexGridDto) => {
+          updateHexGridDtos.push(updateHexGridDto);
+        });
+      expect(updateHexGridByUserIdSpy).toBeCalledTimes(0);
+      const syncTask = await appService.syncUserProfile();
+      expect(updateHexGridByUserIdSpy).toBeCalledTimes(
+        updateHexGridDtos.length,
+      );
+      expect(syncTaskType).toBe(SyncTaskType.USER_PROFILE);
+      expect(patternSent).toBe(UCenterMsClientMethod.SYNC_USER_PROFILE);
+      expect(lastSyncDateSent).toEqual(
+        dayjs('2021-01-01 00:00:00 GMT').toDate(),
+      );
+      expect(syncTask).toEqual(syncTaskEntity);
+    });
+  });
+
   describe('onApplicationBootstrap', () => {
     it('UCENTER_MS_CLIENT should connect', async () => {
-      const spy = jest.spyOn(clientProxy, 'connect');
+      const spy = jest.spyOn(ucenterMsClient, 'connect');
       expect(spy).toHaveBeenCalledTimes(0);
       appService.onApplicationBootstrap();
       expect(spy).toHaveBeenCalledTimes(1);

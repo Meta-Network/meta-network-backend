@@ -178,6 +178,69 @@ describe('HexGridsService', () => {
     });
   });
 
+  describe('updateByUserId', () => {
+    it('should update entity', async () => {
+      await repo.save({
+        x: 0,
+        y: 11,
+        z: -11,
+        userId: 1,
+        username: 'alice',
+      });
+      let entity = await repo.findOne(1);
+      expect(entity.userNickname).toBe('');
+      expect(entity.userAvatar).toBe('');
+      expect(entity.userBio).toBe('');
+      expect(entity.username).toBe('alice');
+
+      const updateHexGridDto = {
+        userId: 1,
+        userNickname: 'BenBen42',
+        userAvatar: 'https://meta.fan/images/logo.png',
+        userBio: 'Web 3 / Metaverse',
+      };
+      await service.updateByUserId(updateHexGridDto);
+      entity = await repo.findOne(1);
+      expect(entity.username).toBe('alice');
+      expect(entity.userNickname).toBe(updateHexGridDto.userNickname);
+      expect(entity.userAvatar).toBe(updateHexGridDto.userAvatar);
+      expect(entity.userBio).toBe(updateHexGridDto.userBio);
+    });
+  });
+  describe('updateByMetaSpaceSiteId', () => {
+    it('should update entity', async () => {
+      await repo.save({
+        x: 0,
+        y: 11,
+        z: -11,
+        userId: 1,
+        username: 'alice',
+        metaSpaceSiteId: 12,
+      });
+      let entity = await repo.findOne(1);
+      expect(entity.metaSpaceSiteUrl).toBe('');
+      expect(entity.metaSpaceSiteProofUrl).toBe('');
+      expect(entity.siteName).toBe('');
+      expect(entity.subdomain).toBe('');
+
+      expect(entity.username).toBe('alice');
+
+      const updateHexGridDto = {
+        metaSpaceSiteId: 12,
+        siteName: 'Meta Fan',
+        subdomain: 'alice-1',
+        metaSpaceSiteUrl: 'http://meta.fan',
+      };
+      await service.updateByMetaSpaceSiteId(updateHexGridDto);
+      entity = await repo.findOne({
+        metaSpaceSiteId: 12,
+      });
+      expect(entity.metaSpaceSiteUrl).toBe(updateHexGridDto.metaSpaceSiteUrl);
+      expect(entity.siteName).toBe(updateHexGridDto.siteName);
+      expect(entity.subdomain).toBe(updateHexGridDto.subdomain);
+      expect(entity.metaSpaceSiteProofUrl).toBe('');
+    });
+  });
   describe('getForbiddenZoneRadius', () => {
     it('should return configBizService.getHexGridForbiddenZoneRadius()', async () => {
       jest
@@ -309,7 +372,6 @@ describe('HexGridsService', () => {
   });
 
   describe('findOneByMetaSpaceSiteUrl', () => {
-    jest.setTimeout(30000);
     it('should return entity when found', async () => {
       await repo.save({
         x: 0,
@@ -342,6 +404,7 @@ describe('HexGridsService', () => {
   });
 
   describe('findByFilter', () => {
+    jest.setTimeout(60000);
     it('should return entities when found', async () => {
       await repo.save({
         x: 0,
@@ -394,8 +457,9 @@ describe('HexGridsService', () => {
     });
 
     it('should return 5000 entities when more than 5000 entities was found', async () => {
+      const entities = [];
       for (let i = 0; i < 6000; i++) {
-        await repo.save({
+        entities.push({
           x: 1 + i,
           y: 11,
           z: -12 - i,
@@ -403,6 +467,7 @@ describe('HexGridsService', () => {
           username: `bob${i + 1}`,
         });
       }
+      await repo.save(entities);
       // console.log('entity count:' + (await repo.count()));
       const result1 = await service.findByFilter({
         xMin: -10000,
@@ -441,6 +506,7 @@ describe('HexGridsService', () => {
   });
 
   describe('countByFilter', () => {
+    jest.setTimeout(60000);
     it('should return count when found', async () => {
       await repo.save({
         x: 0,
@@ -478,8 +544,9 @@ describe('HexGridsService', () => {
     });
 
     it('should be the exact count when more than 5000 entities was found', async () => {
+      const entities = [];
       for (let i = 0; i < 6000; i++) {
-        await repo.save({
+        entities.push({
           x: 1 + i,
           y: 11,
           z: -12 - i,
@@ -487,6 +554,7 @@ describe('HexGridsService', () => {
           username: `bob${i + 1}`,
         });
       }
+      await repo.save(entities);
       // console.log('entity count:' + (await repo.count()));
       const result1 = await service.countByFilter({
         xMin: -10000,

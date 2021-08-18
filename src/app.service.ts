@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { OnEvent } from '@nestjs/event-emitter';
 import dayjs from 'dayjs';
@@ -6,13 +6,29 @@ import { HexGridsEvent } from './hex-grids/hex-grids.constant';
 import { HexGrid } from './entities/hex-grid.entity';
 import { ConfigBizService } from './config-biz/config-biz.service';
 import { firstValueFrom } from 'rxjs';
-import { UcenterMsClientMethod } from './constants';
+import { UCenterMsClientMethod } from './constants';
+import { Cron, SchedulerRegistry } from '@nestjs/schedule';
+
+import { CronJob } from 'cron';
+import { ConfigService } from '@nestjs/config';
+import {
+  SyncTaskCallbackResult,
+  SyncTasksService,
+} from './sync-tasks/sync-tasks.service';
+import { UserDto } from './dto/user.dto';
+import { MetaInternalResult } from '@metaio/microservice-model';
+import { HexGridsService } from './hex-grids/hex-grids.service';
 
 @Injectable()
 export class AppService {
+  private readonly logger = new Logger(AppService.name);
   constructor(
     @Inject('UCENTER_MS_CLIENT') private readonly ucenterMsClient: ClientProxy,
+    private readonly configService: ConfigService,
     private readonly configBizService: ConfigBizService,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly syncTaskService: SyncTasksService,
+    private readonly hexGridsService: HexGridsService,
   ) {}
 
   @OnEvent(HexGridsEvent.OCCUPIED)
@@ -26,7 +42,7 @@ export class AppService {
 
   async getHello(): Promise<string> {
     const result = this.ucenterMsClient.send<string>(
-      UcenterMsClientMethod.HELLO,
+      UCenterMsClientMethod.HELLO,
       {
         hello: 'world',
       },
@@ -36,7 +52,7 @@ export class AppService {
 
   async newInvitationSlot(userId: number, cause: string) {
     return this.ucenterMsClient.emit<void>(
-      UcenterMsClientMethod.NEW_INVITATION_SLOT,
+      UCenterMsClientMethod.NEW_INVITATION_SLOT,
       await this.buildInvitation(userId, cause),
     );
   }
@@ -65,7 +81,51 @@ export class AppService {
       .toDate();
   }
 
+  async syncUserProfile() {
+    this.logger.log('syncUserProfile');
+
+    return await this.syncTaskService.syncUserProfile(async (modifiedAfter) => {
+      const result = await firstValueFrom(
+        this.ucenterMsClient.send<MetaInternalResult>(
+          UCenterMsClientMethod.SYNC_USER_PROFILE,
+          {
+            modifiedAfter,
+          },
+        ),
+      );
+      this.logger.debug('fetchUsers', JSON.stringify(result));
+      const modifiedUserDtos = result.data as UserDto[];
+      const count = modifiedUserDtos?.length || 0;
+      for (const userDto of modifiedUserDtos) {
+        this.hexGridsService.updateByUserId({
+          userId: userDto.id,
+          username: userDto.username,
+          userNickname: userDto.nickname,
+          userBio: userDto.bio,
+          userAvatar: userDto.avatar,
+        });
+      }
+      return SyncTaskCallbackResult.success(count);
+    });
+  }
   async onApplicationBootstrap() {
     await this.ucenterMsClient.connect();
+    this.addStartSyncUserProfileJob();
+    console.log(this.schedulerRegistry.getCronJobs());
+  }
+
+  private addStartSyncUserProfileJob(): CronJob {
+    const syncUserProfileJob = new CronJob(
+      this.configService.get('cron.sync_user_profile'),
+      () => {
+        this.syncUserProfile();
+      },
+    );
+    this.schedulerRegistry.addCronJob(
+      UCenterMsClientMethod.SYNC_USER_PROFILE,
+      syncUserProfileJob,
+    );
+    syncUserProfileJob.start();
+    return syncUserProfileJob;
   }
 }

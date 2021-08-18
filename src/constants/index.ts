@@ -23,7 +23,8 @@ export enum AppMsMethod {
   FIND_HEX_GRID_BY_USER_ID = 'findHexGridByUserId',
 }
 
-export enum UcenterMsClientMethod {
+export enum UCenterMsClientMethod {
   HELLO = 'hello',
   NEW_INVITATION_SLOT = 'newInvitationSlot',
+  SYNC_USER_PROFILE = 'syncUserProfile',
 }
