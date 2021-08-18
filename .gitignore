@@ -38,11 +38,13 @@ lerna-debug.log*
 .env.*
 config.*
 !config.example.yaml
+!config.biz.example.yaml
 
 # JWT keys
 JWT_PRIVATE_KEY.pem
 JWT_PUBLIC_KEY.pub
 JWT_PUBLIC_KEY.pub.*
+# test
 test/coverage/clover.xml
 test/coverage/coverage-final.json
 test/coverage/lcov.info

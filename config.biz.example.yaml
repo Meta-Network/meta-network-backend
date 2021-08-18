@@ -1,0 +1,14 @@
+# 六边形网格地块相关业务配置
+hex_grid:
+  # 禁止占领区域
+  forbidden_zone:
+    # 半径，从中心坐标 [0,0,0] 开始计算，半径以内的区域是不可占领地块
+    radius: 10
+  # 功能特性开关
+  feature_flags:
+    # 地块占领成功时增加可用邀请码额度
+    new_invitation_slot_created_on_hex_grid_occupied: true
+# 邀请码相关
+invitation:
+  # 有效期（按月计算）
+  expiration_period_months: 3
