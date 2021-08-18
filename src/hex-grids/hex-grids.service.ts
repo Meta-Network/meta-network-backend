@@ -22,7 +22,7 @@ export class HexGridsService {
   constructor(
     @InjectRepository(HexGrid)
     private readonly hexGridsRepository: Repository<HexGrid>,
-    private eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2,
     private readonly configBizService: ConfigBizService,
   ) {}
 
