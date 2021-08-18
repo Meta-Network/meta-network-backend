@@ -15,3 +15,18 @@ jwt:
   verify:
     issuer:
     audience:
+
+redis:
+  host: '127.0.0.1'
+  port: 6379
+  pass:
+# 缓存配置
+cache:
+  # 业务配置缓存
+  biz:
+    ttl: 600
+    max: 100000
+# 基于 cron 表达式的任务调度
+cron:
+  enabled: false
+  sync_user_profile: '45 * * * * *'
