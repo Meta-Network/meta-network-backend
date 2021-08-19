@@ -42,15 +42,18 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('Meta Network API')
-    .setDescription('Meta Network API')
-    .setVersion('0.1')
-    .addCookieAuth(configService.get<string>('jwt.access_token_key'))
-    .build();
+  const swaggerEnabled = configService.get<boolean>('swagger.enabled');
+  if (swaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('Meta Network API')
+      .setDescription('Meta Network API')
+      .setVersion('0.1')
+      .addCookieAuth(configService.get<string>('jwt.access_token_key'))
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
   await app.startAllMicroservices();
   await app.listen(configService.get<string>('app.port'));
 }

@@ -30,3 +30,7 @@ cache:
 cron:
   enabled: false
   sync_user_profile: '45 * * * * *'
+# Swagger 相关配置
+swagger:
+  # 是否开放Swagger API Endpoint。如在生产环境不开放
+  enabled: true
