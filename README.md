@@ -74,6 +74,14 @@ npx husky add .husky/commit-msg 'npx --no-install commitlint --edit $1'
 yarn husky add .husky/commit-msg 'yarn commitlint --edit $1'
 ```
 
+## Coding Stye
+
+### Lint-staged
+
+```bash
+npx mrm@2 lint-staged
+```
+
 ## Microservices
 
 [Hybrid applcation](https://docs.nestjs.com/faq/hybrid-application#hybrid-application) + [NATS](https://docs.nestjs.com/microservices/nats)
