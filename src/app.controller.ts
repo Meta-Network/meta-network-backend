@@ -1,7 +1,7 @@
-import { Get, Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
-import { ApiGeneralResponse } from './decorators/api-general-response.decorator';
 import { AppService } from './app.service';
+import { ApiGeneralResponse } from './decorators/api-general-response.decorator';
 
 @Controller()
 export class AppController {

@@ -1,32 +1,24 @@
-import {
-  ClientProvider,
-  ClientProviderOptions,
-  ClientsModule,
-  ClientsModuleOptions,
-  MicroserviceOptions,
-  Transport,
-} from '@nestjs/microservices';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ClientProviderOptions, ClientsModule } from '@nestjs/microservices';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TerminusModule } from '@nestjs/terminus';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Module } from '@nestjs/common';
-import configuration from './config/configuration';
-import { AppService } from './app.service';
-import { AppController } from './app.controller';
-import * as fs from 'fs';
-import * as winston from 'winston';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
-import { AuthModule } from './auth/auth.module';
-import { HexGridsModule } from './hex-grids/hex-grids.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ConfigBizModule } from './config-biz/config-biz.module';
-
-import * as ormconfig from './config/ormconfig';
+import { AppController } from './app.controller';
 import { AppMsController } from './app.ms.controller';
-import { SyncTasksModule } from './sync-tasks/sync-tasks.module';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import configuration from './config/configuration';
+// eslint-disable-next-line import/namespace
+import * as ormconfig from './config/ormconfig';
+import { ConfigBizModule } from './config-biz/config-biz.module';
 import { HealthController } from './health/health.controller';
+import { HexGridsModule } from './hex-grids/hex-grids.module';
+import { SyncTasksModule } from './sync-tasks/sync-tasks.module';
 
 const { combine, timestamp, printf, metadata, label } = winston.format;
 

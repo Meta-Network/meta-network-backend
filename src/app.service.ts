@@ -1,23 +1,23 @@
+import { MetaInternalResult } from '@metaio/microservice-model';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { OnEvent } from '@nestjs/event-emitter';
-import dayjs from 'dayjs';
-import { HexGridsEvent } from './hex-grids/hex-grids.constant';
-import { HexGrid } from './entities/hex-grid.entity';
-import { ConfigBizService } from './config-biz/config-biz.service';
-import { firstValueFrom } from 'rxjs';
-import { UCenterMsClientMethod } from './constants';
-import { Cron, SchedulerRegistry } from '@nestjs/schedule';
-
-import { CronJob } from 'cron';
 import { ConfigService } from '@nestjs/config';
+import { OnEvent } from '@nestjs/event-emitter';
+import { ClientProxy } from '@nestjs/microservices';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
+import dayjs from 'dayjs';
+import { firstValueFrom } from 'rxjs';
+
+import { ConfigBizService } from './config-biz/config-biz.service';
+import { UCenterMsClientMethod } from './constants';
+import { UserDto } from './dto/user.dto';
+import { HexGrid } from './entities/hex-grid.entity';
+import { HexGridsEvent } from './hex-grids/hex-grids.constant';
+import { HexGridsService } from './hex-grids/hex-grids.service';
 import {
   SyncTaskCallbackResult,
   SyncTasksService,
 } from './sync-tasks/sync-tasks.service';
-import { UserDto } from './dto/user.dto';
-import { MetaInternalResult } from '@metaio/microservice-model';
-import { HexGridsService } from './hex-grids/hex-grids.service';
 
 @Injectable()
 export class AppService {
