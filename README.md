@@ -74,6 +74,23 @@ npx husky add .husky/commit-msg 'npx --no-install commitlint --edit $1'
 yarn husky add .husky/commit-msg 'yarn commitlint --edit $1'
 ```
 
+## Microservices
+
+[Hybrid applcation](https://docs.nestjs.com/faq/hybrid-application#hybrid-application) + [NATS](https://docs.nestjs.com/microservices/nats)
+
+### MessagePattern
+
+camelCase
+
+- `findHexGridByUserId`
+
+### EventPattern
+
+lowwercase + dot
+
+- `user.profile.modified`
+- ``
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
