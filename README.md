@@ -2,7 +2,6 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
 
-
 ## Description
 
 Meta Network Backend
@@ -46,6 +45,33 @@ $ yarn run test:e2e
 
 # test coverage
 $ yarn run test:cov
+```
+
+## Conventional Commits
+
+This project is following [commitlint](https://github.com/conventional-changelog/commitlint) rules and checks the commit message with [husky](https://typicode.github.io/husky/#/?id=features). You can also follow the [Local setup](https://commitlint.js.org/#/guides-local-setup) installation guide to install this lint in your project, like following:
+
+```bash
+# Install and configure if needed
+npm install --save-dev @commitlint/{cli,config-conventional}
+# or
+yarn add -D @commitlint/{cli,config-conventional}
+echo "module.exports = { extends: ['@commitlint/config-conventional'] };" > commitlint.config.js
+
+# Install Husky v6
+npm install husky --save-dev
+# or
+yarn add husky --dev
+
+# Active hooks
+npx husky install
+# or
+yarn husky install
+
+# Add hook
+npx husky add .husky/commit-msg 'npx --no-install commitlint --edit $1'
+# or
+yarn husky add .husky/commit-msg 'yarn commitlint --edit $1'
 ```
 
 ## Support
