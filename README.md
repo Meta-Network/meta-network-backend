@@ -99,6 +99,84 @@ lowwercase + dot
 - `user.profile.modified`
 - ``
 
+## Docker
+
+### Build
+
+```bash
+docker build -t metaio/meta-network:v0.0.1 .
+```
+
+### Docker-compose
+
+`Redis` + `NATS` + `Meta-UCenter-BE` + `Meta-Network-BE`
+
+default as production environment
+
+config path:
+
+- meta-ucenter: `/var/docker/meta-ucenter/config`
+- meta-network: `/var/docker/meta-network/config`
+
+Can be changed in the `docker-compose.yml` file
+
+```yaml
+network:
+  build: .
+  ports:
+    - '3001:3000'
+  # config path
+  volumes:
+    - /var/usr/local/meta-network/config:/app/config
+  # development environment
+  environment:
+    - NODE_ENV=development
+  depends_on:
+    - redis
+    - nats
+  restart: on-failure
+```
+
+You should add `config.development.yaml` `config.biz.development.yaml` files in the config paths.
+
+```bash
+/var/docker
+|____meta-network
+| |____config
+| | |____config.production.yaml
+| | |____rds-ca-2019-root.pem
+| | |____config.biz.production.yaml
+| | |____config.biz.example.yaml
+| | |____config.example.yaml
+| | |____JWT_PUBLIC_KEY.pub
+|____meta-ucenter
+| |____config
+| | |____config.production.yaml
+| | |____rds-ca-2019-root.pem
+| | |____config.biz.production.yaml
+| | |____config.example.yaml
+| | |____JWT_PUBLIC_KEY.pub
+| | |____JWT_PRIVATE_KEY.pem
+```
+
+```bash
+# create & start
+docker-compose up -d
+# stop
+docker-compose stop
+#start
+docker-compose start
+# restart
+docker-compose restart
+#log (execute in a new terminal)
+## network
+docker-compose logs --follow network
+## ucenter
+docker-compose logs --follow ucenter
+# stop & remove
+docker-compose down
+```
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
