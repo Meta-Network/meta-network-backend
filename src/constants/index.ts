@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 /**
  * 地图最大坐标
  */

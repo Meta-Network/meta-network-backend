@@ -8,7 +8,6 @@ export const YAML_CONFIG_FILENAME =
   process.env.NODE_ENV === 'production'
     ? 'config.production.yaml'
     : 'config.development.yaml';
-
 export const CONFIG_PATH =
   process.env.CONFIG_PATH || join(__dirname, '..', '..', 'config');
 
