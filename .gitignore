@@ -39,6 +39,7 @@ lerna-debug.log*
 config.*
 !config.example.yaml
 !config.biz.example.yaml
+/config
 
 # JWT keys
 JWT_PRIVATE_KEY.pem

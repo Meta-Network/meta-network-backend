@@ -1,23 +1,23 @@
+import { MetaInternalResult, ServiceCode } from '@metaio/microservice-model';
+import { HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ClientProxy,
   ClientProxyFactory,
   ReadPacket,
 } from '@nestjs/microservices';
+import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
 import dayjs from 'dayjs';
 import { Observable } from 'rxjs';
-import { AppService } from './app.service';
-import { ScheduleModule } from '@nestjs/schedule';
 
+import { AppService } from './app.service';
 import { ConfigBizService } from './config-biz/config-biz.service';
+import { UCenterMsClientMethod } from './constants';
 import { HexGrid } from './entities/hex-grid.entity';
+import { SyncTaskType } from './entities/sync-task.entity';
 import { HexGridsService } from './hex-grids/hex-grids.service';
 import { SyncTasksService } from './sync-tasks/sync-tasks.service';
-import { UCenterMsClientMethod } from './constants';
-import { SyncTaskType } from './entities/sync-task.entity';
-import { MetaInternalResult, ServiceCode } from '@metaio/microservice-model';
-import { HttpStatus } from '@nestjs/common';
 
 class MockClientProxy extends ClientProxy {
   protected dispatchEvent<T = any>(packet: ReadPacket<any>): Promise<T> {

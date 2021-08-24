@@ -12,7 +12,7 @@ import { AppController } from './app.controller';
 import { AppMsController } from './app.ms.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import configuration from './config/configuration';
+import { loadConfig } from './config/configuration';
 // eslint-disable-next-line import/namespace
 import * as ormconfig from './config/ormconfig';
 import { ConfigBizModule } from './config-biz/config-biz.module';
@@ -30,7 +30,7 @@ const logFormat = printf((info) => {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [configuration],
+      load: [loadConfig],
     }),
     // Logger Module Configuration
     WinstonModule.forRoot({

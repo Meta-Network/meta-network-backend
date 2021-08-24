@@ -1,7 +1,8 @@
 import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
-import { config, WATCHER } from './configuration.biz';
 import { Cache } from 'cache-manager';
 import * as objectPath from 'object-path';
+
+import { config, WATCHER } from './configuration.biz';
 
 const HEX_GRID_FORBIDDEN_ZONE_RADIUS = 'hex_grid.forbidden_zone.radius';
 const HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED =
