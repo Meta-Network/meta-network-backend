@@ -1,0 +1,29 @@
+services:
+  ucenter:
+    image: metaio/meta-ucenter:v0.0.1
+    ports:
+      - '3000:3000'
+    volumes:
+      - /var/docker/meta-ucenter/config:/app/config
+    depends_on:
+      - redis
+      - nats
+    restart: on-failure
+  network:
+    build: .
+    ports:
+      - '3001:3000'
+    volumes:
+      - /var/docker/meta-network/config:/app/config
+    depends_on:
+      - redis
+      - nats
+    restart: on-failure
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+  nats:
+    image: nats
+    ports:
+      - '4222:4222'

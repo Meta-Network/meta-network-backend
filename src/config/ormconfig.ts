@@ -1,11 +1,12 @@
 import { readFileSync } from 'fs';
+import { join } from 'path';
 
 import { HexGrid } from '../entities/hex-grid.entity';
 import { SyncTask } from '../entities/sync-task.entity';
-import loadConfig from './configuration';
+import { CONFIG_PATH, loadConfig } from './configuration';
 
 const { db } = loadConfig();
-const ca = readFileSync('rds-ca-2019-root.pem').toString();
+const ca = readFileSync(join(CONFIG_PATH, 'rds-ca-2019-root.pem')).toString();
 
 module.exports =
   process.env.NODE_ENV === 'test'

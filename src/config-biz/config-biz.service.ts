@@ -1,7 +1,8 @@
 import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
-import { config, WATCHER } from './configuration.biz';
 import { Cache } from 'cache-manager';
 import * as objectPath from 'object-path';
+
+import { loadConfig, WATCHER } from './configuration.biz';
 
 const HEX_GRID_FORBIDDEN_ZONE_RADIUS = 'hex_grid.forbidden_zone.radius';
 const HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED =
@@ -30,13 +31,13 @@ export class ConfigBizService {
 
   refreshCache(): void {
     // 统一刷新就不需要每个值都读取 YAML
-    const myConfig = config();
+    const myConfig = loadConfig();
     AVAILABLE_KEYS.forEach((key) => {
       this.reloadValue(key, myConfig);
     });
   }
 
-  async loadValue<T = any>(key: string, myConfig = config()): Promise<T> {
+  async loadValue<T = any>(key: string, myConfig = loadConfig()): Promise<T> {
     // console.log(myConfig);
     const cachedValue = await this.cache.get<T>(key);
     // console.log('cachedValue: ' + cachedValue);
@@ -47,7 +48,7 @@ export class ConfigBizService {
     return this.setCacheValue(key, myConfig);
   }
 
-  async setCacheValue<T = any>(key: string, myConfig = config()) {
+  async setCacheValue<T = any>(key: string, myConfig = loadConfig()) {
     const cachedValue = objectPath.get(myConfig, key);
     // console.log(`objectPath ${key} = ${cachedValue}`);
     this.logger.debug(`set cachedValue: ${key} = ${cachedValue}`);
@@ -55,7 +56,7 @@ export class ConfigBizService {
     return await this.cache.get<T>(key);
   }
 
-  async reloadValue<T = any>(key: string, myConfig = config()): Promise<T> {
+  async reloadValue<T = any>(key: string, myConfig = loadConfig()): Promise<T> {
     try {
       this.logger.log(`reload cache: ${key}`);
 
@@ -66,7 +67,9 @@ export class ConfigBizService {
     }
   }
 
-  async getHexGridForbiddenZoneRadius(myConfig = config()): Promise<number> {
+  async getHexGridForbiddenZoneRadius(
+    myConfig = loadConfig(),
+  ): Promise<number> {
     const configValue = await this.loadValue<number>(
       HEX_GRID_FORBIDDEN_ZONE_RADIUS,
       myConfig,
@@ -79,7 +82,7 @@ export class ConfigBizService {
   }
 
   async isNewInvitationSlotCreatedOnHexGridOccupiedEnabled(
-    myConfig = config(),
+    myConfig = loadConfig(),
   ): Promise<boolean> {
     return this.loadValue<boolean>(
       HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED,
@@ -88,7 +91,7 @@ export class ConfigBizService {
   }
 
   async getInvitationExpirationPeriodMonths(
-    myConfig = config(),
+    myConfig = loadConfig(),
   ): Promise<number> {
     const configValue = await this.loadValue<number>(
       INVITATION_EXPIRATION_PERIOD_MONTHS,

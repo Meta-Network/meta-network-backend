@@ -1,11 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-/**
- * 身份认证用的 JWT_KEY
- */
-export const JWT_KEY = {
-  publicKey: fs.readFileSync(path.join(__dirname, '../../JWT_PUBLIC_KEY.pub')),
-};
+
 /**
  * 地图最大坐标
  */

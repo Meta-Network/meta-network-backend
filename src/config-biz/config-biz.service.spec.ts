@@ -1,8 +1,8 @@
 import { CacheModule } from '@nestjs/common';
-import { config, WATCHER } from './configuration.biz';
-
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { ConfigBizService } from './config-biz.service';
+import { loadConfig, WATCHER } from './configuration.biz';
 
 describe('ConfigBizService', () => {
   let service: ConfigBizService;
@@ -44,7 +44,7 @@ describe('ConfigBizService', () => {
   });
   describe('getHexGridForbiddenZoneRadius', () => {
     it('should match the (valid) value specified in the configuration file (config.biz.development.yaml)', async () => {
-      let configValue = config().hex_grid.forbidden_zone.radius;
+      let configValue = loadConfig().hex_grid.forbidden_zone.radius;
       if (!(configValue > 0)) {
         configValue = 0;
       }
@@ -95,7 +95,7 @@ describe('ConfigBizService', () => {
       expect(
         await service.isNewInvitationSlotCreatedOnHexGridOccupiedEnabled(),
       ).toBe(
-        config().hex_grid.feature_flags
+        loadConfig().hex_grid.feature_flags
           .new_invitation_slot_created_on_hex_grid_occupied,
       );
     });
@@ -120,7 +120,7 @@ describe('ConfigBizService', () => {
   describe('getInvitationExpiration', () => {
     it('should match the value specified in the configuration file (config.biz.development.yaml)', async () => {
       expect(await service.getInvitationExpirationPeriodMonths()).toBe(
-        config().invitation.expiration_period_months,
+        loadConfig().invitation.expiration_period_months,
       );
     });
     it('should match the value specified in the config which is greater than 0', async () => {
