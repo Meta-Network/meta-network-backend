@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+
 import { AutoDateEntity } from './auto-date.entity';
 
 @Entity()
@@ -130,4 +131,10 @@ export class HexGrid extends AutoDateEntity {
     comment: '站点归属验证用URL。用于后续外部站点接入验证所有权',
   })
   metaSpaceSiteProofUrl: string;
+  @ApiProperty({
+    description: '地块拥有者的邀请者ID',
+  })
+  @Index()
+  @Column({ name: 'inviter_user_id', nullable: false, default: 0 })
+  inviterUserId: number;
 }

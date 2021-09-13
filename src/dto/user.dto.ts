@@ -9,6 +9,8 @@ export class UserDto {
 
   avatar: string;
 
+  inviter_user_id: number;
+
   created_at: Date;
 
   updated_at: Date;

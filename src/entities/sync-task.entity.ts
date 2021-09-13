@@ -1,4 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+
 import { AutoDateEntity } from './auto-date.entity';
 
 export enum SyncTaskType {

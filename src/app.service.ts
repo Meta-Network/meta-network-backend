@@ -103,6 +103,7 @@ export class AppService {
           userNickname: userDto.nickname,
           userBio: userDto.bio,
           userAvatar: userDto.avatar,
+          inviterUserId: userDto.inviter_user_id,
         });
       }
       return SyncTaskCallbackResult.success(count);

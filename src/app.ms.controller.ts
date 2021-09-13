@@ -1,3 +1,4 @@
+import { MetaInternalResult, ServiceCode } from '@metaio/microservice-model';
 import { Controller, HttpStatus, Logger } from '@nestjs/common';
 import {
   Ctx,
@@ -6,10 +7,10 @@ import {
   NatsContext,
   Payload,
 } from '@nestjs/microservices';
+
 import { AppMsEvent, AppMsMethod } from './constants';
 import { SiteInfoDto } from './dto/site-info.dto';
 import { HexGridsService } from './hex-grids/hex-grids.service';
-import { MetaInternalResult, ServiceCode } from '@metaio/microservice-model';
 
 @Controller()
 export class AppMsController {
@@ -47,6 +48,7 @@ export class AppMsController {
       userNickname: payload.nickname,
       userBio: payload.bio,
       userAvatar: payload.avatar,
+      inviterUserId: payload.inviter_user_id,
     });
   }
 

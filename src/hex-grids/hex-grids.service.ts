@@ -4,17 +4,17 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-
-import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { JWTDecodedUser } from '../auth/type';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Like, Repository, SelectQueryBuilder } from 'typeorm';
+
+import { JWTDecodedUser } from '../auth/type';
+import { ConfigBizService } from '../config-biz/config-biz.service';
 import { HexGrid } from '../entities/hex-grid.entity';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
-import { HexGridsEvent } from './hex-grids.constant';
-import { ConfigBizService } from '../config-biz/config-biz.service';
 import { UpdateHexGridDto } from './dto/update-hex-grid.dto';
+import { HexGridsEvent } from './hex-grids.constant';
 
 @Injectable()
 export class HexGridsService {
