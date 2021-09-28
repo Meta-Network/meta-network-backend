@@ -1,6 +1,9 @@
 export class SiteInfoDto {
+  configId: number;
   userId: number;
   title: string;
-  subTitle: string;
+  subtitle: string;
   description: string;
+  domain: string;
+  metaSpacePrefix: string;
 }

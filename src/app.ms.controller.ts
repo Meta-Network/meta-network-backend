@@ -1,5 +1,6 @@
 import { MetaInternalResult, ServiceCode } from '@metaio/microservice-model';
 import { Controller, HttpStatus, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   Ctx,
   EventPattern,
@@ -15,7 +16,10 @@ import { HexGridsService } from './hex-grids/hex-grids.service';
 @Controller()
 export class AppMsController {
   private logger = new Logger(AppMsController.name);
-  constructor(private readonly hexGridsService: HexGridsService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly hexGridsService: HexGridsService,
+  ) {}
 
   @MessagePattern(AppMsMethod.FIND_HEX_GRID_BY_USER_ID)
   async findHexGridByUserId(userId: number) {
@@ -55,6 +59,14 @@ export class AppMsController {
   @EventPattern(AppMsEvent.META_SPACE_SITE_CREATED)
   handleMetaSpaceSiteCreated(payload: SiteInfoDto) {
     this.logger.log('handleMetaSpaceSiteCreated', payload);
-    // TODO
+    const metaSpaceDomain = this.configService.get<string>(
+      'meta.meta-space-domain',
+    );
+    this.hexGridsService.updateByUserId({
+      userId: payload.userId,
+      subdomain: `https://${payload.metaSpacePrefix}.${metaSpaceDomain}`,
+      metaSpaceSiteId: payload.configId,
+      metaSpaceSiteUrl: `https://${payload.domain}`,
+    });
   }
 }
