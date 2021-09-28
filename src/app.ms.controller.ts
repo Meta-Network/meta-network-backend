@@ -64,7 +64,7 @@ export class AppMsController {
     );
     this.hexGridsService.updateByUserId({
       userId: payload.userId,
-      subdomain: `https://${payload.metaSpacePrefix}.${metaSpaceDomain}`,
+      subdomain: `${payload.metaSpacePrefix}.${metaSpaceDomain}`,
       metaSpaceSiteId: payload.configId,
       metaSpaceSiteUrl: `https://${payload.domain}`,
     });
