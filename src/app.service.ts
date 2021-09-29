@@ -9,7 +9,8 @@ import dayjs from 'dayjs';
 import { firstValueFrom } from 'rxjs';
 
 import { ConfigBizService } from './config-biz/config-biz.service';
-import { UCenterMsClientMethod } from './constants';
+import { CmsMsClientMethod, UCenterMsClientMethod } from './constants';
+import { SiteInfoDto } from './dto/site-info.dto';
 import { UserDto } from './dto/user.dto';
 import { HexGrid } from './entities/hex-grid.entity';
 import { HexGridsEvent } from './hex-grids/hex-grids.constant';
@@ -24,6 +25,7 @@ export class AppService {
   private readonly logger = new Logger(AppService.name);
   constructor(
     @Inject('UCENTER_MS_CLIENT') private readonly ucenterMsClient: ClientProxy,
+    @Inject('CMS_MS_CLIENT') private readonly cmsMsClient: ClientProxy,
     private readonly configService: ConfigService,
     private readonly configBizService: ConfigBizService,
     private readonly schedulerRegistry: SchedulerRegistry,
@@ -109,10 +111,42 @@ export class AppService {
       return SyncTaskCallbackResult.success(count);
     });
   }
+
+  async syncSiteInfo() {
+    this.logger.log('syncSiteInfo');
+
+    return await this.syncTaskService.syncSiteInfo(async (modifiedAfter) => {
+      const result = await firstValueFrom(
+        this.cmsMsClient.send<MetaInternalResult>(
+          CmsMsClientMethod.SYNC_SITE_INFO,
+          {
+            modifiedAfter,
+          },
+        ),
+      );
+      this.logger.debug('fetchSiteInfos', JSON.stringify(result));
+      const modifiedSiteInfoDtos = result.data as SiteInfoDto[];
+      const count = modifiedSiteInfoDtos?.length || 0;
+      const metaSpaceDomain = this.configService.get<string>(
+        'meta.meta-space-domain',
+      );
+      for (const siteInfoDto of modifiedSiteInfoDtos) {
+        this.hexGridsService.updateByUserId({
+          userId: siteInfoDto.userId,
+          subdomain: `${siteInfoDto.metaSpacePrefix}.${metaSpaceDomain}`,
+          metaSpaceSiteId: siteInfoDto.configId,
+          metaSpaceSiteUrl: `https://${siteInfoDto.domain}`,
+        });
+      }
+      return SyncTaskCallbackResult.success(count);
+    });
+  }
+
   async onApplicationBootstrap() {
     await this.ucenterMsClient.connect();
     if (this.configService.get<boolean>('cron.enabled')) {
       this.addStartSyncUserProfileJob();
+      this.addStartSyncSiteInfoJob();
     }
     console.log(this.schedulerRegistry.getCronJobs());
   }
@@ -130,5 +164,19 @@ export class AppService {
     );
     syncUserProfileJob.start();
     return syncUserProfileJob;
+  }
+  private addStartSyncSiteInfoJob(): CronJob {
+    const syncSiteInfoJob = new CronJob(
+      this.configService.get('cron.sync_site_info'),
+      () => {
+        this.syncSiteInfo();
+      },
+    );
+    this.schedulerRegistry.addCronJob(
+      CmsMsClientMethod.SYNC_SITE_INFO,
+      syncSiteInfoJob,
+    );
+    syncSiteInfoJob.start();
+    return syncSiteInfoJob;
   }
 }

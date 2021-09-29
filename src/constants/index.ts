@@ -20,3 +20,7 @@ export enum UCenterMsClientMethod {
   NEW_INVITATION_SLOT = 'newInvitationSlot',
   SYNC_USER_PROFILE = 'syncUserProfile',
 }
+
+export enum CmsMsClientMethod {
+  SYNC_SITE_INFO = 'syncSiteInfo',
+}

@@ -55,12 +55,23 @@ export class SyncTasksService {
   async syncUserProfile(
     callback: (modifiedAfter: Date) => Promise<SyncTaskCallbackResult>,
   ) {
-    const lastSyncTask = await this.findLastSuccessOneByType(
-      SyncTaskType.USER_PROFILE,
-    );
+    return this.sync(callback, SyncTaskType.USER_PROFILE);
+  }
+
+  async syncSiteInfo(
+    callback: (modifiedAfter: Date) => Promise<SyncTaskCallbackResult>,
+  ) {
+    return this.sync(callback, SyncTaskType.SITE_INFO);
+  }
+
+  async sync(
+    callback: (modifiedAfter: Date) => Promise<SyncTaskCallbackResult>,
+    syncTaskType: SyncTaskType,
+  ) {
+    const lastSyncTask = await this.findLastSuccessOneByType(syncTaskType);
     const modifiedAfter = this.getModifiedAfter(lastSyncTask);
     const syncTaskEntity = await this.save({
-      type: SyncTaskType.USER_PROFILE,
+      type: syncTaskType,
       state: SyncTaskState.DOING,
     });
     try {

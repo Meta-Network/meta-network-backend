@@ -71,6 +71,19 @@ const logFormat = printf((info) => {
         },
         inject: [ConfigService],
       },
+      {
+        name: 'CMS_MS_CLIENT',
+        imports: [ConfigModule],
+
+        useFactory: async (configService: ConfigService) => {
+          const config = configService.get<ClientProviderOptions>(
+            'microservice.clients.cms',
+          );
+          console.log(config);
+          return config;
+        },
+        inject: [ConfigService],
+      },
     ]),
     // Database Module Configuration
     TypeOrmModule.forRoot(ormconfig),
