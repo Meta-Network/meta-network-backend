@@ -11,12 +11,6 @@ export const YAML_CONFIG_FILENAME =
 export const CONFIG_PATH =
   process.env.CONFIG_PATH || join(__dirname, '..', '..', 'config');
 
-/**
- * 身份认证用的 JWT_KEY
- */
-export const JWT_KEY = {
-  publicKey: readFileSync(join(CONFIG_PATH, 'JWT_PUBLIC_KEY.pub')),
-};
 export function loadConfig() {
   return yaml.load(
     // '__dirname/../..' refers to project root folder

@@ -144,6 +144,7 @@ export class AppService {
 
   async onApplicationBootstrap() {
     await this.ucenterMsClient.connect();
+    await this.cmsMsClient.connect();
     if (this.configService.get<boolean>('cron.enabled')) {
       this.addStartSyncUserProfileJob();
       this.addStartSyncSiteInfoJob();
