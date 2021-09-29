@@ -7,7 +7,7 @@ describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
-    const appService = new AppService(null, null, null, null, null, null);
+    const appService = new AppService(null, null, null, null, null, null, null);
     jest
       .spyOn(appService, 'getHello')
       .mockImplementation(async () => 'Hello, World!');

@@ -39,12 +39,14 @@ class MockClientProxy extends ClientProxy {
 describe('AppService', () => {
   let appService: AppService;
   let ucenterMsClient: ClientProxy;
+  let cmsMsClient: ClientProxy;
   const configBizService = new ConfigBizService(null);
   const configService = new ConfigService();
   const hexGridsService = new HexGridsService(null, null, null);
   const syncTasksService = new SyncTasksService(null, null);
   beforeEach(async () => {
     ucenterMsClient = new MockClientProxy();
+    cmsMsClient = new MockClientProxy();
     const app: TestingModule = await Test.createTestingModule({
       imports: [ScheduleModule.forRoot()],
       providers: [
@@ -53,6 +55,10 @@ describe('AppService', () => {
         {
           provide: 'UCENTER_MS_CLIENT',
           useFactory: () => ucenterMsClient,
+        },
+        {
+          provide: 'CMS_MS_CLIENT',
+          useFactory: () => cmsMsClient,
         },
         {
           provide: ConfigBizService,
