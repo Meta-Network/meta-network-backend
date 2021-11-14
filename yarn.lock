@@ -778,10 +778,10 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@metaio/auth-sdk@^0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@metaio/auth-sdk/-/auth-sdk-0.2.2.tgz#9968638bdb200dba0dd55d670478f84398d1249e"
-  integrity sha512-FMmILonlsFityD5fld/alBWEGmV+5PJUzqIrOJhpF+NcyWl0l6PzP4FLhTy4e3MX532fwmf5MKeEb8jLO2K2sQ==
+"@metaio/auth-sdk@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@metaio/auth-sdk/-/auth-sdk-0.2.3.tgz#23de533c02d3bb945baa01c20759d8b320a45a48"
+  integrity sha512-9wiViGhKcGvGieEScrOeVbj9EimuCtqdr3e+J4nzUgfyaqUGff4F0Ncd6ZPcLFg/8xwF1pRdVhIF3u7LhqiM8w==
   dependencies:
     dotenv "^10.0.0"
     jsonwebtoken "^8.5.1"
