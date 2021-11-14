@@ -40,7 +40,27 @@ describe('HexGridsService', () => {
       updated_at: new Date(),
     },
   } as JWTDecodedUser;
-
+  const anotherUser = {
+    id: 9,
+    purpose: 'access_token',
+    username: 'bob',
+    nickname: '',
+    avatar: '',
+    bio: '',
+    created_at: new Date(),
+    updated_at: new Date(),
+    aud: ['ucenter', 'network'],
+    jti: 'abcdefgh',
+    iss: 'https://meta-network.test',
+    account: {
+      id: 1,
+      user_id: 1,
+      account_id: 'bob@ww.io',
+      platform: 'email',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+  } as JWTDecodedUser;
   beforeEach(async () => {
     const connection = await createConnection({
       type: 'sqlite',
@@ -84,6 +104,13 @@ describe('HexGridsService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('isHexGridExisted', () =>{
+    it('should return false if no hex grid exists', async ()=>{
+      const result = await service.isHexGridExisted({});
+      expect(result).toBe(false);
+    })
+  });
+
   describe('occupy', () => {
     it('should return the hex grid occupied', async () => {
       await repo.save({
@@ -125,11 +152,18 @@ describe('HexGridsService', () => {
       expect(t).rejects.toThrow(BadRequestException);
       expect(t).rejects.toThrow('Invalid coordinate: Forbidden Zone');
     });
-    it('should throw BadRequestException if the hex grid is not adjacent to an occupied grid', async () => {
+    it('should throw BadRequestException if the hex grid is  not adjacent to an occupied grid', async () => {
       jest
         .spyOn(service, 'getForbiddenZoneRadius')
         .mockImplementation(async () => 9);
-      const t = () => service.occupy({ x: 10, y: -10, z: 0 }, currentUser);
+         await repo.save({
+        x: 0,
+        y: 11,
+        z: -11,
+        userId: 1,
+        username: 'alice',
+      });
+      const t = () => service.occupy({ x: 10, y: -10, z: 0 }, anotherUser);
       expect(t).rejects.toThrow(BadRequestException);
       expect(t).rejects.toThrow(
         'Invalid coordinate: Must be adjacent to an occupied grid',

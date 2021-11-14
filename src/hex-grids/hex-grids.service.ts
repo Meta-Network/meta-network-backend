@@ -62,7 +62,7 @@ export class HexGridsService {
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
     await this.validateCoordinateSum(createHexGridDto);
     const { x, y, z } = createHexGridDto;
-    // 业务校验 - 该坐标或子域名没有被占用 (关系到子域名相关的业务逻辑在哪里完成)
+    // 业务校验 - 该坐标没有被占用 
     if (await this.isHexGridExisted({ x, y, z })) {
       throw new ConflictException(
         'Invalid coordinate: This grid is already occupied',
@@ -80,8 +80,8 @@ export class HexGridsService {
       throw new BadRequestException('Invalid coordinate: Forbidden Zone');
     }
 
-    // 业务校验 - 必须和现有的地块相邻
-    if (
+    // 业务校验 - 除非是第一个占领的，否则必须和现有的地块相邻
+    if (await this.isHexGridExisted({})&&
       !(await this.isHexGridExisted({
         x: Between(x - 1, x + 1),
         y: Between(y - 1, y + 1),
