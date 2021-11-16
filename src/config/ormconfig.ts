@@ -30,6 +30,7 @@ module.exports =
         username: db.username,
         password: db.password,
         database: db.database,
+        charset: db.charset || 'utf8mb4',
         connectTimeout: db.connect_timeout,
         synchronize: false,
         logging: process.env.NODE_ENV !== 'production',
