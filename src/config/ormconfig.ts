@@ -1,5 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { HexGridBatchTxEntity } from 'src/entities/hex-grid-batch-tx.entity';
+import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
+import { HexGridTransactionReferenceEntity } from 'src/entities/hex-grid-tx-ref.entity';
 
 import { HexGrid } from '../entities/hex-grid.entity';
 import { SyncTask } from '../entities/sync-task.entity';
@@ -34,5 +37,11 @@ module.exports =
         connectTimeout: db.connect_timeout,
         synchronize: false,
         logging: process.env.NODE_ENV !== 'production',
-        entities: [HexGrid, SyncTask],
+        entities: [
+          HexGrid,
+          SyncTask,
+          HexGridPendingEntity,
+          HexGridBatchTxEntity,
+          HexGridTransactionReferenceEntity,
+        ],
       };
