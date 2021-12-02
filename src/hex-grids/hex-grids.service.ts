@@ -6,7 +6,14 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Like, Repository, SelectQueryBuilder } from 'typeorm';
+import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
+import {
+  Between,
+  Connection,
+  Like,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 
 import { JWTDecodedUser } from '../auth/type';
 import { ConfigBizService } from '../config-biz/config-biz.service';
@@ -20,7 +27,7 @@ import { HexGridsEvent } from './hex-grids.constant';
 export class HexGridsService {
   private readonly logger = new Logger(HexGridsService.name);
   constructor(
-    @InjectRepository(HexGrid)
+    private readonly databaseConnection: Connection,
     private readonly hexGridsRepository: Repository<HexGrid>,
     private readonly eventEmitter: EventEmitter2,
     private readonly configBizService: ConfigBizService,
@@ -35,10 +42,23 @@ export class HexGridsService {
       throw new ConflictException('You already own a grid');
     }
 
-    const hexGridEntity = await this.hexGridsRepository.save({
-      userId,
-      username: user.username,
-      ...occupyHexGridDto,
+    let hexGridEntity;
+
+    await this.databaseConnection.transaction(async (manager) => {
+      hexGridEntity = await manager.save(HexGrid, {
+        userId,
+        username: user.username,
+        ...occupyHexGridDto,
+      });
+
+      await manager.save(HexGridPendingEntity, {
+        id: hexGridEntity.id,
+        content: {
+          userId,
+          username: user.username,
+          ...occupyHexGridDto,
+        },
+      });
     });
     // 发送地块被占领的事件
     this.eventEmitter.emit(HexGridsEvent.OCCUPIED, hexGridEntity);
@@ -46,23 +66,55 @@ export class HexGridsService {
   }
 
   async updateByUserId(updateHexGridDto: UpdateHexGridDto) {
-    await this.hexGridsRepository.update(
-      { userId: updateHexGridDto.userId },
-      updateHexGridDto,
-    );
+    await this.databaseConnection.transaction(async (manager) => {
+      const hexGrid = await this.hexGridsRepository.findOneOrFail({
+        userId: updateHexGridDto.userId,
+      });
+
+      await this.hexGridsRepository.update(hexGrid.id, updateHexGridDto);
+
+      let pending = await manager.findOne(HexGridPendingEntity, hexGrid.id);
+
+      if (pending) {
+        Object.assign(pending.properties, updateHexGridDto);
+      } else {
+        pending = {
+          id: hexGrid.id,
+          properties: updateHexGridDto,
+        };
+      }
+
+      await manager.save(HexGridPendingEntity, pending);
+    });
   }
 
   async updateByMetaSpaceSiteId(updateHexGridDto: UpdateHexGridDto) {
-    await this.hexGridsRepository.update(
-      { metaSpaceSiteId: updateHexGridDto.metaSpaceSiteId },
-      updateHexGridDto,
-    );
+    await this.databaseConnection.transaction(async (manager) => {
+      const hexGrid = await this.hexGridsRepository.findOneOrFail({
+        metaSpaceSiteId: updateHexGridDto.metaSpaceSiteId,
+      });
+
+      await this.hexGridsRepository.update(hexGrid.id, updateHexGridDto);
+
+      let pending = await manager.findOne(HexGridPendingEntity, hexGrid.id);
+
+      if (pending) {
+        Object.assign(pending.properties, updateHexGridDto);
+      } else {
+        pending = {
+          id: hexGrid.id,
+          properties: updateHexGridDto,
+        };
+      }
+
+      await manager.save(HexGridPendingEntity, pending);
+    });
   }
 
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
     await this.validateCoordinateSum(createHexGridDto);
     const { x, y, z } = createHexGridDto;
-    // 业务校验 - 该坐标没有被占用 
+    // 业务校验 - 该坐标没有被占用
     if (await this.isHexGridExisted({ x, y, z })) {
       throw new ConflictException(
         'Invalid coordinate: This grid is already occupied',
@@ -81,7 +133,8 @@ export class HexGridsService {
     }
 
     // 业务校验 - 除非是第一个占领的，否则必须和现有的地块相邻
-    if (await this.isHexGridExisted({})&&
+    if (
+      (await this.isHexGridExisted({})) &&
       !(await this.isHexGridExisted({
         x: Between(x - 1, x + 1),
         y: Between(y - 1, y + 1),
