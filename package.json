@@ -27,7 +27,7 @@
       "@creditkarma/dynamic-config": "^0.9.13",
       "@creditkarma/feature-flags": "^0.1.1",
       "@metaio/auth-sdk": "^0.2.3",
-      "@metaio/meta-signature-util": "^0.4.2",
+      "@metaio/meta-signature-util": "^0.6.0",
       "@metaio/microservice-model": "^1.0.0",
       "@nestjs/axios": "^0.0.1",
       "@nestjs/common": "^8.0.0",
