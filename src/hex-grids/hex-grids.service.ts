@@ -28,6 +28,7 @@ export class HexGridsService {
   private readonly logger = new Logger(HexGridsService.name);
   constructor(
     private readonly databaseConnection: Connection,
+    @InjectRepository(HexGrid)
     private readonly hexGridsRepository: Repository<HexGrid>,
     private readonly eventEmitter: EventEmitter2,
     private readonly configBizService: ConfigBizService,
