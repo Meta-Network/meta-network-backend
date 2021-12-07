@@ -18,6 +18,7 @@ import * as ormconfig from './config/ormconfig';
 import { ConfigBizModule } from './config-biz/config-biz.module';
 import { HealthController } from './health/health.controller';
 import { HexGridsModule } from './hex-grids/hex-grids.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 import { SyncTasksModule } from './sync-tasks/sync-tasks.module';
 
 const { combine, timestamp, printf, metadata, label } = winston.format;
@@ -93,6 +94,7 @@ const logFormat = printf((info) => {
     HexGridsModule,
     ConfigBizModule,
     SyncTasksModule,
+    SchedulerModule,
   ],
   controllers: [AppController, AppMsController, HealthController],
   providers: [AppService],
