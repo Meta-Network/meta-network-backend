@@ -1,4 +1,4 @@
-import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
+import { HexGridPendingEntity } from '../../entities/hex-grid-pending.entity';
 
 export interface IHexGridStorage {
   getPendings(): Promise<Array<HexGridPendingEntity>>;

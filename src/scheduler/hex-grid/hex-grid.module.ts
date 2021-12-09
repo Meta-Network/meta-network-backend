@@ -3,14 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Arweave from 'arweave';
 import fs from 'fs/promises';
-import { HexGrid } from 'src/entities/hex-grid.entity';
-import { HexGridBatchTxEntity } from 'src/entities/hex-grid-batch-tx.entity';
-import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
-import { HexGridTransactionReferenceEntity } from 'src/entities/hex-grid-tx-ref.entity';
 import TestWeave from 'testweave-sdk';
 
+import { HexGrid } from '../../entities/hex-grid.entity';
+import { HexGridBatchTxEntity } from '../../entities/hex-grid-batch-tx.entity';
+import { HexGridPendingEntity } from '../../entities/hex-grid-pending.entity';
+import { HexGridTransactionReferenceEntity } from '../../entities/hex-grid-tx-ref.entity';
 import { HexGridScheduler } from './hex-grid.scheduler';
-import { ArweaveHexGridStorageService } from './hex-grid-storage-arweave.service';
+import { HexGridStorageService } from './hex-grid-storage.service';
+import { HexGridStorageArweaveProvider } from './hex-grid-storage-arweave.provider';
 import * as InjectToken from './inject-token';
 
 @Module({
@@ -65,7 +66,8 @@ import * as InjectToken from './inject-token';
       inject: [InjectToken.TestWeave, ConfigService],
     },
     HexGridScheduler,
-    ArweaveHexGridStorageService,
+    HexGridStorageArweaveProvider,
+    HexGridStorageService,
   ],
 })
 export class HexGridModule {}

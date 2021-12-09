@@ -1,8 +1,8 @@
-import { HexGridBatchTxEntity } from 'src/entities/hex-grid-batch-tx.entity';
-import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
-import { HexGridTransactionReferenceEntity } from 'src/entities/hex-grid-tx-ref.entity';
 import { EntityManager } from 'typeorm';
 
+import { HexGridBatchTxEntity } from '../../entities/hex-grid-batch-tx.entity';
+import { HexGridPendingEntity } from '../../entities/hex-grid-pending.entity';
+import { HexGridTransactionReferenceEntity } from '../../entities/hex-grid-tx-ref.entity';
 import { IHexGridStorage } from './hex-grid-storage.interface';
 
 export class TypeOrmHexGridStorage implements IHexGridStorage {

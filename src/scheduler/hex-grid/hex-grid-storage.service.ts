@@ -1,22 +1,14 @@
 import { metaNetworkGridsServerSign } from '@metaio/meta-signature-util';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Arweave from 'arweave';
-import type { JWKInterface } from 'arweave/node/lib/wallet';
-import TestWeave from 'testweave-sdk';
 
 import type { IHexGridStorage } from './hex-grid-storage.interface';
-import * as InjectToken from './inject-token';
+import { HexGridStorageArweaveProvider } from './hex-grid-storage-arweave.provider';
 
 @Injectable()
-export class ArweaveHexGridStorageService {
+export class HexGridStorageService {
   constructor(
-    @Inject(InjectToken.Arweave)
-    private arweave: Arweave,
-    @Inject(InjectToken.TestWeave)
-    private testWeave: TestWeave | null,
-    @Inject(InjectToken.WalletKey)
-    private walletKey: JWKInterface,
+    private arweave: HexGridStorageArweaveProvider,
     private configService: ConfigService,
   ) {}
 
@@ -55,7 +47,9 @@ export class ArweaveHexGridStorageService {
       Object.assign(metadata, { previousBatchTx });
     }
 
-    const transaction = await this.createTransaction(JSON.stringify(metadata));
+    const transaction = await this.arweave.createTransaction(
+      JSON.stringify(metadata),
+    );
 
     await storage.updateHexGridsTransactionReference(
       transaction.id,
@@ -63,20 +57,6 @@ export class ArweaveHexGridStorageService {
     );
     await storage.clearPendings();
 
-    this.testWeave?.mine();
-  }
-
-  async createTransaction(content: string) {
-    const transaction = await this.arweave.createTransaction(
-      {
-        data: content,
-      },
-      this.walletKey,
-    );
-
-    await this.arweave.transactions.sign(transaction, this.walletKey);
-    await this.arweave.transactions.post(transaction);
-
-    return transaction;
+    this.arweave.postProcess();
   }
 }
