@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { Connection } from 'typeorm';
 
-import { ArweaveHexGridStorageService } from './hex-grid-storage-arweave.service';
 import { TypeOrmHexGridStorage } from './hex-grid-storage-typeorm';
+import { HexGridStorageService } from './hex-grid-storage.service';
 
 @Injectable()
 export class HexGridScheduler {
   constructor(
     private connection: Connection,
-    private storageService: ArweaveHexGridStorageService,
+    private storageService: HexGridStorageService,
   ) {}
 
   @Cron('0 */5 * * * *')
