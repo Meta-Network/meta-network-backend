@@ -6,7 +6,7 @@ import { HexGridTransactionReferenceEntity } from '../../entities/hex-grid-tx-re
 import { IHexGridStorage } from './hex-grid-storage.interface';
 
 export class TypeOrmHexGridStorage implements IHexGridStorage {
-  constructor(private entityManager: EntityManager) {}
+  constructor(protected entityManager: EntityManager) {}
 
   async getPendings() {
     return await this.entityManager.find(HexGridPendingEntity);
