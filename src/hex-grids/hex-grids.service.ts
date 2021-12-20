@@ -54,7 +54,7 @@ export class HexGridsService {
 
       await manager.save(HexGridPendingEntity, {
         id: hexGridEntity.id,
-        content: {
+        properties: {
           userId,
           username: user.username,
           ...occupyHexGridDto,
