@@ -24,8 +24,14 @@ export class HexGridStorageArweaveProvider {
       this.walletKey,
     );
 
+    transaction.addTag('Content-Type', 'application/json');
+
     await this.arweave.transactions.sign(transaction, this.walletKey);
-    await this.arweave.transactions.post(transaction);
+
+    const uploader = await this.arweave.transactions.getUploader(transaction);
+    while (!uploader.isComplete) {
+      await uploader.uploadChunk();
+    }
 
     return transaction;
   }
