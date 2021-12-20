@@ -37,11 +37,10 @@ class Storage extends TypeOrmHexGridStorage {
       delete hexGrid.id;
       delete hexGrid.createdAt;
       delete hexGrid.updatedAt;
-      delete hexGrid.siteName;
-      delete hexGrid.subdomain;
-      delete hexGrid.metaSpaceSiteId;
-      delete hexGrid.metaSpaceSiteUrl;
-      delete hexGrid.metaSpaceSiteProofUrl;
+
+      if (hexGrid.siteName === '') {
+        delete hexGrid.siteName;
+      }
 
       if (hexGrid.userBio === '') {
         delete hexGrid.userBio;
@@ -53,6 +52,22 @@ class Storage extends TypeOrmHexGridStorage {
 
       if (hexGrid.inviterUserId === 0) {
         delete hexGrid.inviterUserId;
+      }
+
+      if (hexGrid.subdomain === '') {
+        delete hexGrid.subdomain;
+      }
+
+      if (hexGrid.metaSpaceSiteId === 0) {
+        delete hexGrid.metaSpaceSiteId;
+      }
+
+      if (hexGrid.metaSpaceSiteUrl === '') {
+        delete hexGrid.metaSpaceSiteUrl;
+      }
+
+      if (hexGrid.metaSpaceSiteProofUrl === '') {
+        delete hexGrid.metaSpaceSiteProofUrl;
       }
 
       pendings.push({
