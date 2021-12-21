@@ -7,6 +7,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
+import { HexGridTransactionReferenceEntity } from 'src/entities/hex-grid-tx-ref.entity';
 import {
   Between,
   Connection,
@@ -207,7 +208,8 @@ export class HexGridsService {
       this.hexGridsRepository.createQueryBuilder(),
       params,
     )
-      .orderBy({ id: 'ASC' })
+      .leftJoinAndSelect('HexGrid.reference', 'reference', 'reference.id = HexGrid.id')
+      .orderBy({ 'HexGrid.id': 'ASC' })
       .limit(5000)
       .getMany();
   }
