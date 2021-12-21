@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Connection } from 'typeorm';
 
 import { HexGridStorageService } from './hex-grid-storage.service';
@@ -14,7 +14,7 @@ export class HexGridScheduler {
     private storageService: HexGridStorageService,
   ) {}
 
-  @Cron('0 */5 * * * *')
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async handleBatchUpload() {
     this.logger.log('triggered');
 
