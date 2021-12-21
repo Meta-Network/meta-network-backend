@@ -68,11 +68,11 @@ export class HexGridsService {
 
   async updateByUserId(updateHexGridDto: UpdateHexGridDto) {
     await this.databaseConnection.transaction(async (manager) => {
-      const hexGrid = await this.hexGridsRepository.findOneOrFail({
+      const hexGrid = await manager.findOneOrFail(HexGrid, {
         userId: updateHexGridDto.userId,
       });
 
-      await this.hexGridsRepository.update(hexGrid.id, updateHexGridDto);
+      await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
 
       let pending = await manager.findOne(HexGridPendingEntity, hexGrid.id);
 
@@ -91,11 +91,11 @@ export class HexGridsService {
 
   async updateByMetaSpaceSiteId(updateHexGridDto: UpdateHexGridDto) {
     await this.databaseConnection.transaction(async (manager) => {
-      const hexGrid = await this.hexGridsRepository.findOneOrFail({
+      const hexGrid = await manager.findOneOrFail(HexGrid, {
         metaSpaceSiteId: updateHexGridDto.metaSpaceSiteId,
       });
 
-      await this.hexGridsRepository.update(hexGrid.id, updateHexGridDto);
+      await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
 
       let pending = await manager.findOne(HexGridPendingEntity, hexGrid.id);
 
@@ -162,7 +162,9 @@ export class HexGridsService {
   }
 
   async findOne(condition): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne(condition);
+    return await this.hexGridsRepository.findOne(condition, {
+      relations: ['reference'],
+    });
   }
 
   async isHexGridExisted(condition): Promise<boolean> {
@@ -171,26 +173,32 @@ export class HexGridsService {
 
   async findOneByCoordinate(x: number, y: number, z: number): Promise<HexGrid> {
     await this.validateCoordinateSum({ x, y, z });
-    return await this.hexGridsRepository.findOne({ x, y, z });
+    return await this.hexGridsRepository.findOne({ x, y, z }, {
+      relations: ['reference'],
+    });
   }
 
   async findOneBySubdomain(subdomain: string): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ subdomain });
+    return await this.hexGridsRepository.findOne({ subdomain }, {
+      relations: ['reference'],
+    });
   }
 
   async findOneByUserId(userId: number): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ userId });
+    return await this.hexGridsRepository.findOne({ userId }, {
+      relations: ['reference'],
+    });
   }
 
   async findOneByMetaSpaceSiteId(metaSpaceSiteId: number): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({
-      metaSpaceSiteId,
+    return await this.hexGridsRepository.findOne({ metaSpaceSiteId }, {
+      relations: ['reference'],
     });
   }
 
   async findOneByMetaSpaceSiteUrl(metaSpaceSiteUrl: string): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({
-      metaSpaceSiteUrl,
+    return await this.hexGridsRepository.findOne({ metaSpaceSiteUrl }, {
+      relations: ['reference'],
     });
   }
 

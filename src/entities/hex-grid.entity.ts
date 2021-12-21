@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { AutoDateEntity } from './auto-date.entity';
+import { HexGridTransactionReferenceEntity } from './hex-grid-tx-ref.entity';
 
 @Entity()
 @Index(['x', 'y', 'z'], { unique: true })
@@ -137,4 +138,7 @@ export class HexGrid extends AutoDateEntity {
   @Index()
   @Column({ name: 'inviter_user_id', nullable: false, default: 0 })
   inviterUserId: number;
+
+  @OneToOne(() => HexGridTransactionReferenceEntity, reference => reference.id)
+  reference: HexGridTransactionReferenceEntity;
 }

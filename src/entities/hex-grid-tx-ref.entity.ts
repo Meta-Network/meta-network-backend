@@ -1,8 +1,10 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { HexGrid } from './hex-grid.entity';
 
 @Entity()
 export class HexGridTransactionReferenceEntity {
-  @PrimaryColumn()
+  @OneToOne(() => HexGrid, { primary: true, createForeignKeyConstraints: false })
+  @JoinColumn({ name: 'id' })
   id: number;
 
   @Column()
