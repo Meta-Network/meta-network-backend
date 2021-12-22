@@ -62,11 +62,12 @@ export class AppMsController {
     const metaSpaceDomain = this.configService.get<string>(
       'meta.meta-space-domain',
     );
+    const subdomain = `${payload.metaSpacePrefix}.${metaSpaceDomain}`;
     this.hexGridsService.updateByUserId({
       userId: payload.userId,
-      subdomain: `${payload.metaSpacePrefix}.${metaSpaceDomain}`,
+      subdomain,
       metaSpaceSiteId: payload.configId,
-      metaSpaceSiteUrl: `https://${payload.domain}`,
+      metaSpaceSiteUrl: `https://${payload.domain ?? subdomain}`,
     });
   }
 }
