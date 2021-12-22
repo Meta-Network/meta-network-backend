@@ -6,7 +6,7 @@ export class HexGridTransactionReferenceEntity {
   @PrimaryColumn()
   id: number;
 
-  @OneToOne(() => HexGrid, { cascade: true, createForeignKeyConstraints: false })
+  @OneToOne(() => HexGrid, hexgrid => hexgrid.id, { cascade: true, createForeignKeyConstraints: false })
   @JoinColumn({ name: 'id' })
   hexgrid: HexGrid;
 

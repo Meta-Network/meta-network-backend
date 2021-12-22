@@ -139,6 +139,6 @@ export class HexGrid extends AutoDateEntity {
   @Column({ name: 'inviter_user_id', nullable: false, default: 0 })
   inviterUserId: number;
 
-  @OneToOne(() => HexGridTransactionReferenceEntity, reference => reference.id)
+  @OneToOne(() => HexGridTransactionReferenceEntity, reference => reference.hexgrid)
   reference: HexGridTransactionReferenceEntity;
 }
