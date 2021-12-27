@@ -1,7 +1,7 @@
 {
    "name": "meta-network-be",
-   "version": "0.0.1",
-   "description": "",
+   "version": "1.0.1",
+   "description": "Meta Network Backend",
    "author": "",
    "private": true,
    "license": "UNLICENSED",
