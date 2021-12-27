@@ -59,6 +59,16 @@ export class AppMsController {
   @EventPattern(AppMsEvent.META_SPACE_SITE_CREATED)
   handleMetaSpaceSiteCreated(payload: SiteInfoDto) {
     this.logger.log('handleMetaSpaceSiteCreated', payload);
+    this.updateHexGrid(payload);
+  }
+
+  @EventPattern(AppMsEvent.META_SPACE_SITE_PUBLISHED)
+  handleMetaSpaceSitePublished(payload: SiteInfoDto) {
+    this.logger.log('handleMetaSpaceSitePublished', payload);
+    this.updateHexGrid(payload);
+  }
+
+  updateHexGrid(payload: SiteInfoDto) {
     const metaSpaceDomain = this.configService.get<string>(
       'meta.meta-space-domain',
     );

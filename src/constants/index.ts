@@ -9,6 +9,7 @@ export enum AppMsEvent {
   USER_PROFILE_MODIFIED = 'user.profile.modified',
   META_SPACE_SITE_CREATED = 'meta.space.site.created',
   META_SPACE_SITE_UPDATED = 'meta.space.site.updated',
+  META_SPACE_SITE_PUBLISHED = 'meta.space.site.published',
 }
 
 export enum AppMsMethod {
