@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, Index, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { AutoDateEntity } from './auto-date.entity';
 import { HexGridTransactionReferenceEntity } from './hex-grid-tx-ref.entity';
@@ -89,7 +95,7 @@ export class HexGrid extends AutoDateEntity {
    */
   @ApiProperty({
     description:
-      '子域名。和username可以不同。配合系统分配的域名使用。如果用户彻底替换了域名，这个也要保留，以后可以回退到系统分配的域名',
+      '子域名。metaSpacePrefix配合系统分配的域名使用。如果用户彻底替换了域名，这个也要保留，以后可以回退到系统分配的域名',
   })
   @Index()
   @Column({
@@ -139,6 +145,9 @@ export class HexGrid extends AutoDateEntity {
   @Column({ name: 'inviter_user_id', nullable: false, default: 0 })
   inviterUserId: number;
 
-  @OneToOne(() => HexGridTransactionReferenceEntity, reference => reference.hexgrid)
+  @OneToOne(
+    () => HexGridTransactionReferenceEntity,
+    (reference) => reference.hexgrid,
+  )
   reference: HexGridTransactionReferenceEntity;
 }

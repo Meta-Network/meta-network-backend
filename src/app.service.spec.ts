@@ -15,6 +15,7 @@ import { AppService } from './app.service';
 import { ConfigBizService } from './config-biz/config-biz.service';
 import { UCenterMsClientMethod } from './constants';
 import { HexGrid } from './entities/hex-grid.entity';
+import { HexGridPendingEntity } from './entities/hex-grid-pending.entity';
 import { SyncTaskType } from './entities/sync-task.entity';
 import { HexGridsService } from './hex-grids/hex-grids.service';
 import { SyncTasksService } from './sync-tasks/sync-tasks.service';
@@ -42,7 +43,14 @@ describe('AppService', () => {
   let cmsMsClient: ClientProxy;
   const configBizService = new ConfigBizService(null);
   const configService = new ConfigService();
-  const hexGridsService = new HexGridsService(null, null, null);
+  const hexGridsService = new HexGridsService(
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+  );
   const syncTasksService = new SyncTasksService(null, null);
   beforeEach(async () => {
     ucenterMsClient = new MockClientProxy();

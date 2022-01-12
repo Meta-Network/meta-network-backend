@@ -117,6 +117,32 @@ describe('ConfigBizService', () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('isUploadToArweaveEnabled', () => {
+    it('should match the value specified in the configuration file (config.biz.development.yaml)', async () => {
+      expect(await service.isUploadToArweaveEnabled()).toBe(
+        loadConfig().hex_grid.feature_flags.upload_to_arweave,
+      );
+    });
+    it('should return false when config is set to false', async () => {
+      expect(
+        await service.isUploadToArweaveEnabled({
+          hex_grid: {
+            feature_flags: {
+              upload_to_arweave: false,
+            },
+          },
+        }),
+      ).toBe(false);
+    });
+    it('should load value', async () => {
+      const spy = jest.spyOn(service, 'loadValue');
+      expect(spy).toHaveBeenCalledTimes(0);
+      await service.isUploadToArweaveEnabled();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('getInvitationExpiration', () => {
     it('should match the value specified in the configuration file (config.biz.development.yaml)', async () => {
       expect(await service.getInvitationExpirationPeriodMonths()).toBe(
@@ -147,6 +173,48 @@ describe('ConfigBizService', () => {
         await service.getInvitationExpirationPeriodMonths({
           invitation: {
             expiration_period_months: 'hahaha',
+          },
+        }),
+      ).toBe(1);
+    });
+    it('should load value', async () => {
+      const spy = jest.spyOn(service, 'loadValue');
+      expect(spy).toHaveBeenCalledTimes(0);
+      await service.isNewInvitationSlotCreatedOnHexGridOccupiedEnabled();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getMicroserviceMaxRetry', () => {
+    it('should match the value specified in the configuration file (config.biz.development.yaml)', async () => {
+      expect(await service.getMicroserviceMaxRetry()).toBe(
+        loadConfig().microservice.max_retry,
+      );
+    });
+    it('should match the value specified in the config which is greater than 0', async () => {
+      expect(
+        await service.getMicroserviceMaxRetry({
+          microservice: {
+            max_retry: 3,
+          },
+        }),
+      ).toBe(3);
+    });
+
+    it('should be 1 when the value specified in the config less than 1', async () => {
+      expect(
+        await service.getMicroserviceMaxRetry({
+          microservice: {
+            max_retry: 0,
+          },
+        }),
+      ).toBe(1);
+    });
+    it('should be 1 when the value specified in the config is not an integer', async () => {
+      expect(
+        await service.getMicroserviceMaxRetry({
+          microservice: {
+            max_retry: 'hahaha',
           },
         }),
       ).toBe(1);

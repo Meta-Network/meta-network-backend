@@ -4,21 +4,16 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HexGridPendingEntity } from 'src/entities/hex-grid-pending.entity';
-import { HexGridTransactionReferenceEntity } from 'src/entities/hex-grid-tx-ref.entity';
-import {
-  Between,
-  Connection,
-  Like,
-  Repository,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { Between, Connection, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { JWTDecodedUser } from '../auth/type';
 import { ConfigBizService } from '../config-biz/config-biz.service';
 import { HexGrid } from '../entities/hex-grid.entity';
+import { HexGridPendingEntity } from '../entities/hex-grid-pending.entity';
+import { MetaCmsService } from '../microservices/meta-cms/meta-cms.service';
 import { FindByFilterDto } from './dto/find-by-filter.dto';
 import { OccupyHexGridDto } from './dto/occupy-hex-grid.dto';
 import { UpdateHexGridDto } from './dto/update-hex-grid.dto';
@@ -31,8 +26,12 @@ export class HexGridsService {
     private readonly databaseConnection: Connection,
     @InjectRepository(HexGrid)
     private readonly hexGridsRepository: Repository<HexGrid>,
+
     private readonly eventEmitter: EventEmitter2,
+    private readonly configService: ConfigService,
+
     private readonly configBizService: ConfigBizService,
+    private readonly metaCmsService: MetaCmsService,
   ) {}
 
   async occupy(occupyHexGridDto: OccupyHexGridDto, user: JWTDecodedUser) {
@@ -43,28 +42,46 @@ export class HexGridsService {
     if (await this.isHexGridExisted({ userId })) {
       throw new ConflictException('You already own a grid');
     }
-
+    const metaSpaceDomain = this.getMetaSpaceDomain();
+    const siteInfo = await this.metaCmsService.fetchUserDefaultSiteInfo(userId);
+    const subdomain = `${siteInfo.metaSpacePrefix}.${metaSpaceDomain}`;
+    const hexGridSiteInfo = {
+      subdomain,
+      metaSpaceSiteId: siteInfo.configId,
+      metaSpaceSiteUrl: `https://${siteInfo.domain ?? subdomain}`,
+    };
     let hexGridEntity;
 
     await this.databaseConnection.transaction(async (manager) => {
       hexGridEntity = await manager.save(HexGrid, {
         userId,
+
         username: user.username,
         ...occupyHexGridDto,
+        ...hexGridSiteInfo,
       });
-
-      await manager.save(HexGridPendingEntity, {
-        id: hexGridEntity.id,
-        properties: {
-          userId,
-          username: user.username,
-          ...occupyHexGridDto,
-        },
-      });
+      if (await this.isUploadToAreaveEnabled()) {
+        await manager.save(HexGridPendingEntity, {
+          id: hexGridEntity.id,
+          properties: {
+            userId,
+            username: user.username,
+            ...occupyHexGridDto,
+            ...hexGridSiteInfo,
+          },
+        });
+      }
     });
     // 发送地块被占领的事件
     this.eventEmitter.emit(HexGridsEvent.OCCUPIED, hexGridEntity);
     return hexGridEntity;
+  }
+  async isUploadToAreaveEnabled(): Promise<boolean> {
+    return await this.configBizService.isUploadToArweaveEnabled();
+  }
+
+  getMetaSpaceDomain(): string {
+    return this.configService.get<string>('meta.meta-space-domain');
   }
 
   async updateByUserId(updateHexGridDto: UpdateHexGridDto) {
@@ -74,19 +91,7 @@ export class HexGridsService {
       });
 
       await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
-
-      let pending = await manager.findOne(HexGridPendingEntity, hexGrid.id);
-
-      if (pending) {
-        Object.assign(pending.properties, updateHexGridDto);
-      } else {
-        pending = {
-          id: hexGrid.id,
-          properties: updateHexGridDto,
-        };
-      }
-
-      await manager.save(HexGridPendingEntity, pending);
+      await this.doUpdateHexGridPending(manager, hexGrid, updateHexGridDto);
     });
   }
 
@@ -97,7 +102,16 @@ export class HexGridsService {
       });
 
       await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
+      await this.doUpdateHexGridPending(manager, hexGrid, updateHexGridDto);
+    });
+  }
 
+  async doUpdateHexGridPending(
+    manager,
+    hexGrid: HexGrid,
+    updateHexGridDto: UpdateHexGridDto,
+  ) {
+    if (await this.isUploadToAreaveEnabled()) {
       let pending = await manager.findOne(HexGridPendingEntity, hexGrid.id);
 
       if (pending) {
@@ -110,7 +124,7 @@ export class HexGridsService {
       }
 
       await manager.save(HexGridPendingEntity, pending);
-    });
+    }
   }
 
   async validateCoordinate(createHexGridDto: OccupyHexGridDto) {
@@ -174,33 +188,48 @@ export class HexGridsService {
 
   async findOneByCoordinate(x: number, y: number, z: number): Promise<HexGrid> {
     await this.validateCoordinateSum({ x, y, z });
-    return await this.hexGridsRepository.findOne({ x, y, z }, {
-      relations: ['reference'],
-    });
+    return await this.hexGridsRepository.findOne(
+      { x, y, z },
+      {
+        relations: ['reference'],
+      },
+    );
   }
 
   async findOneBySubdomain(subdomain: string): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ subdomain }, {
-      relations: ['reference'],
-    });
+    return await this.hexGridsRepository.findOne(
+      { subdomain },
+      {
+        relations: ['reference'],
+      },
+    );
   }
 
   async findOneByUserId(userId: number): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ userId }, {
-      relations: ['reference'],
-    });
+    return await this.hexGridsRepository.findOne(
+      { userId },
+      {
+        relations: ['reference'],
+      },
+    );
   }
 
   async findOneByMetaSpaceSiteId(metaSpaceSiteId: number): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ metaSpaceSiteId }, {
-      relations: ['reference'],
-    });
+    return await this.hexGridsRepository.findOne(
+      { metaSpaceSiteId },
+      {
+        relations: ['reference'],
+      },
+    );
   }
 
   async findOneByMetaSpaceSiteUrl(metaSpaceSiteUrl: string): Promise<HexGrid> {
-    return await this.hexGridsRepository.findOne({ metaSpaceSiteUrl }, {
-      relations: ['reference'],
-    });
+    return await this.hexGridsRepository.findOne(
+      { metaSpaceSiteUrl },
+      {
+        relations: ['reference'],
+      },
+    );
   }
 
   async findByFilter(params: FindByFilterDto) {
@@ -208,7 +237,11 @@ export class HexGridsService {
       this.hexGridsRepository.createQueryBuilder(),
       params,
     )
-      .leftJoinAndSelect('HexGrid.reference', 'reference', 'reference.id = HexGrid.id')
+      .leftJoinAndSelect(
+        'HexGrid.reference',
+        'reference',
+        'reference.id = HexGrid.id',
+      )
       .orderBy({ 'HexGrid.id': 'ASC' })
       .limit(5000)
       .getMany();

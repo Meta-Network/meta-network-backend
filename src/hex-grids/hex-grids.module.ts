@@ -6,6 +6,7 @@ import { HexGridTransactionReferenceEntity } from 'src/entities/hex-grid-tx-ref.
 
 import { ConfigBizModule } from '../config-biz/config-biz.module';
 import { HexGrid } from '../entities/hex-grid.entity';
+import { MetaCmsModule } from '../microservices/meta-cms/meta-cms.module';
 import { HexGridsController } from './hex-grids.controller';
 import { HexGridsGateway } from './hex-grids.gateway';
 import { HexGridsService } from './hex-grids.service';
@@ -18,6 +19,7 @@ import { HexGridsService } from './hex-grids.service';
       HexGridPendingEntity,
       HexGridTransactionReferenceEntity,
     ]),
+    MetaCmsModule,
     ConfigBizModule,
   ],
   controllers: [HexGridsController],

@@ -7,13 +7,17 @@ import { loadConfig, WATCHER } from './configuration.biz';
 const HEX_GRID_FORBIDDEN_ZONE_RADIUS = 'hex_grid.forbidden_zone.radius';
 const HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED =
   'hex_grid.feature_flags.new_invitation_slot_created_on_hex_grid_occupied';
+const HEX_GRID_FEATURE_FLAGS_UPLOAD_TO_ARWEAVE =
+  'hex_grid.feature_flags.upload_to_arweave';
 const INVITATION_EXPIRATION_PERIOD_MONTHS =
   'invitation.expiration_period_months';
-
+const MICROSERVICE_MAX_RETRY = 'microservice.max_retry';
 const AVAILABLE_KEYS = [
   HEX_GRID_FORBIDDEN_ZONE_RADIUS,
   HEX_GRID_FEATURE_FLAGS_NEW_INTIVATION_SLOT_CREATED_ON_HEX_GRID_OCCUPIED,
+  HEX_GRID_FEATURE_FLAGS_UPLOAD_TO_ARWEAVE,
   INVITATION_EXPIRATION_PERIOD_MONTHS,
+  MICROSERVICE_MAX_RETRY,
 ];
 @Injectable()
 export class ConfigBizService {
@@ -90,11 +94,28 @@ export class ConfigBizService {
     );
   }
 
+  async isUploadToArweaveEnabled(myConfig = loadConfig()): Promise<boolean> {
+    return this.loadValue<boolean>(
+      HEX_GRID_FEATURE_FLAGS_UPLOAD_TO_ARWEAVE,
+      myConfig,
+    );
+  }
+
   async getInvitationExpirationPeriodMonths(
     myConfig = loadConfig(),
   ): Promise<number> {
     const configValue = await this.loadValue<number>(
       INVITATION_EXPIRATION_PERIOD_MONTHS,
+      myConfig,
+    );
+    if (Number.isInteger(configValue) && configValue > 0) {
+      return configValue;
+    }
+    return 1;
+  }
+  async getMicroserviceMaxRetry(myConfig = loadConfig()): Promise<number> {
+    const configValue = await this.loadValue<number>(
+      MICROSERVICE_MAX_RETRY,
       myConfig,
     );
     if (Number.isInteger(configValue) && configValue > 0) {

@@ -12,7 +12,7 @@ describe('AppMsController (e2e)', () => {
   let appMsClient: ClientProxy;
   let hexGridsService: HexGridsService;
   beforeEach(async () => {
-    hexGridsService = new HexGridsService(null, null, null);
+    hexGridsService = new HexGridsService(null, null, null, null, null, null);
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         // TypeOrmModule.forFeature([HexGrid], {

@@ -16,6 +16,10 @@ export enum AppMsMethod {
   FIND_HEX_GRID_BY_USER_ID = 'findHexGridByUserId',
 }
 
+export enum MetaMicroserviceClient {
+  UCENTER = 'UCENTER_MS_CLIENT',
+  CMS = 'CMS_MS_CLIENT',
+}
 export enum UCenterMsClientMethod {
   HELLO = 'hello',
   NEW_INVITATION_SLOT = 'newInvitationSlot',
@@ -24,4 +28,5 @@ export enum UCenterMsClientMethod {
 
 export enum CmsMsClientMethod {
   SYNC_SITE_INFO = 'syncSiteInfo',
+  FETCH_USER_DEFAULT_SITE_INFO = 'fetchUserDefaultSiteInfo',
 }

@@ -1,22 +1,28 @@
+import { BadRequestException, ConflictException } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
+  Connection,
   createConnection,
   getConnection,
   getRepository,
   Repository,
 } from 'typeorm';
-import { HexGrid } from '../entities/hex-grid.entity';
-import { HexGridsService } from './hex-grids.service';
-import { ConfigBizService } from '../config-biz/config-biz.service';
+
 import { JWTDecodedUser } from '../auth/type';
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { ConfigBizService } from '../config-biz/config-biz.service';
+import { HexGrid } from '../entities/hex-grid.entity';
+import { HexGridTransactionReferenceEntity } from '../entities/hex-grid-tx-ref.entity';
+import { MetaCmsService } from '../microservices/meta-cms/meta-cms.service';
+import { HexGridsService } from './hex-grids.service';
 
 describe('HexGridsService', () => {
   let repo: Repository<HexGrid>;
   let service: HexGridsService;
   let configBizService;
+  let metaCmsService: MetaCmsService;
   let eventEmitter;
   const testConnectionName = 'testConn';
   const currentUser = {
@@ -66,17 +72,23 @@ describe('HexGridsService', () => {
       type: 'sqlite',
       database: ':memory:',
       dropSchema: true,
-      entities: [HexGrid],
+      entities: [HexGrid, HexGridTransactionReferenceEntity],
       synchronize: true,
       logging: false,
       name: testConnectionName,
     });
     repo = getRepository(HexGrid, testConnectionName);
     configBizService = new ConfigBizService(undefined);
+    metaCmsService = new MetaCmsService(undefined, configBizService);
     eventEmitter = new EventEmitter2();
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule],
       providers: [
         HexGridsService,
+        {
+          provide: Connection,
+          useFactory: () => connection,
+        },
         {
           provide: getRepositoryToken(HexGrid),
           useFactory: () => repo,
@@ -88,6 +100,10 @@ describe('HexGridsService', () => {
         {
           provide: EventEmitter2,
           useFactory: () => eventEmitter,
+        },
+        {
+          provide: MetaCmsService,
+          useFactory: () => metaCmsService,
         },
       ],
     }).compile();
@@ -104,11 +120,11 @@ describe('HexGridsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('isHexGridExisted', () =>{
-    it('should return false if no hex grid exists', async ()=>{
+  describe('isHexGridExisted', () => {
+    it('should return false if no hex grid exists', async () => {
       const result = await service.isHexGridExisted({});
       expect(result).toBe(false);
-    })
+    });
   });
 
   describe('occupy', () => {
@@ -123,6 +139,23 @@ describe('HexGridsService', () => {
       jest
         .spyOn(service, 'getForbiddenZoneRadius')
         .mockImplementation(async () => 10);
+      jest
+        .spyOn(service, 'getMetaSpaceDomain')
+        .mockImplementation(() => 'metaspaces.life');
+      jest
+        .spyOn(service, 'isUploadToAreaveEnabled')
+        .mockImplementation(async () => false);
+      jest
+        .spyOn(metaCmsService, 'fetchUserDefaultSiteInfo')
+        .mockImplementation(async (userId) => ({
+          configId: 114,
+          userId: 14,
+          title: 'alice meta space',
+          subtitle: 'ww',
+          description: 'ww desc',
+          domain: 'alice.metaspaces.life',
+          metaSpacePrefix: 'alice',
+        }));
       const hexGridEntity = await service.occupy(
         { x: 1, y: 11, z: -12 },
         currentUser,
@@ -132,6 +165,11 @@ describe('HexGridsService', () => {
       expect(hexGridEntity.x).toBe(1);
       expect(hexGridEntity.y).toBe(11);
       expect(hexGridEntity.z).toBe(-12);
+      expect(hexGridEntity.metaSpaceSiteId).toBe(114);
+      expect(hexGridEntity.metaSpaceSiteUrl).toBe(
+        'https://alice.metaspaces.life',
+      );
+      expect(hexGridEntity.subdomain).toBe('alice.metaspaces.life');
     });
 
     it('should throw BadRequestException if the sum of the coordinates is not zero', async () => {
@@ -156,7 +194,7 @@ describe('HexGridsService', () => {
       jest
         .spyOn(service, 'getForbiddenZoneRadius')
         .mockImplementation(async () => 9);
-         await repo.save({
+      await repo.save({
         x: 0,
         y: 11,
         z: -11,
@@ -214,6 +252,9 @@ describe('HexGridsService', () => {
 
   describe('updateByUserId', () => {
     it('should update entity', async () => {
+      jest
+        .spyOn(service, 'isUploadToAreaveEnabled')
+        .mockImplementation(async () => false);
       await repo.save({
         x: 0,
         y: 11,
@@ -243,6 +284,9 @@ describe('HexGridsService', () => {
   });
   describe('updateByMetaSpaceSiteId', () => {
     it('should update entity', async () => {
+      jest
+        .spyOn(service, 'isUploadToAreaveEnabled')
+        .mockImplementation(async () => false);
       await repo.save({
         x: 0,
         y: 11,

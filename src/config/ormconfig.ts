@@ -20,7 +20,13 @@ module.exports =
         dropSchema: true,
         // 设置keepConnectionAlive来避免AlreadyHasActiveConnectionError
         keepConnectionAlive: true,
-        entities: [HexGrid, SyncTask],
+        entities: [
+          HexGrid,
+          SyncTask,
+          HexGridPendingEntity,
+          HexGridBatchTxEntity,
+          HexGridTransactionReferenceEntity,
+        ],
       }
     : {
         type: 'mysql',

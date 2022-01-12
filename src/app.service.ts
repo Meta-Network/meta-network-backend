@@ -131,11 +131,12 @@ export class AppService {
         'meta.meta-space-domain',
       );
       for (const siteInfoDto of modifiedSiteInfoDtos) {
+        const subdomain = `${siteInfoDto.metaSpacePrefix}.${metaSpaceDomain}`;
         this.hexGridsService.updateByUserId({
           userId: siteInfoDto.userId,
-          subdomain: `${siteInfoDto.metaSpacePrefix}.${metaSpaceDomain}`,
+          subdomain,
           metaSpaceSiteId: siteInfoDto.configId,
-          metaSpaceSiteUrl: `https://${siteInfoDto.domain}`,
+          metaSpaceSiteUrl: `https://${siteInfoDto.domain ?? subdomain}`,
         });
       }
       return SyncTaskCallbackResult.success(count);

@@ -1,6 +1,7 @@
 import { CacheModule, CacheModuleOptions, Module } from '@nestjs/common';
-import { ConfigBizService } from './config-biz.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import { ConfigBizService } from './config-biz.service';
 
 @Module({
   imports: [

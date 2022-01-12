@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsString, Length, Max, Min } from 'class-validator';
+
 import { HEX_GRID_COORDINATE_MAX } from '../../constants';
 
 export class OccupyHexGridDto {
