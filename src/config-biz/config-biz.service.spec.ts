@@ -135,6 +135,17 @@ describe('ConfigBizService', () => {
         }),
       ).toBe(false);
     });
+    it('should return true when config is set to true', async () => {
+      expect(
+        await service.isUploadToArweaveEnabled({
+          hex_grid: {
+            feature_flags: {
+              upload_to_arweave: true,
+            },
+          },
+        }),
+      ).toBe(true);
+    });
     it('should load value', async () => {
       const spy = jest.spyOn(service, 'loadValue');
       expect(spy).toHaveBeenCalledTimes(0);

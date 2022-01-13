@@ -86,23 +86,25 @@ export class HexGridsService {
 
   async updateByUserId(updateHexGridDto: UpdateHexGridDto) {
     await this.databaseConnection.transaction(async (manager) => {
-      const hexGrid = await manager.findOneOrFail(HexGrid, {
+      const hexGrid = await manager.findOne(HexGrid, {
         userId: updateHexGridDto.userId,
       });
-
-      await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
-      await this.doUpdateHexGridPending(manager, hexGrid, updateHexGridDto);
+      if (hexGrid?.id) {
+        await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
+        await this.doUpdateHexGridPending(manager, hexGrid, updateHexGridDto);
+      }
     });
   }
 
   async updateByMetaSpaceSiteId(updateHexGridDto: UpdateHexGridDto) {
     await this.databaseConnection.transaction(async (manager) => {
-      const hexGrid = await manager.findOneOrFail(HexGrid, {
+      const hexGrid = await manager.findOne(HexGrid, {
         metaSpaceSiteId: updateHexGridDto.metaSpaceSiteId,
       });
-
-      await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
-      await this.doUpdateHexGridPending(manager, hexGrid, updateHexGridDto);
+      if (hexGrid?.id) {
+        await manager.update(HexGrid, hexGrid.id, updateHexGridDto);
+        await this.doUpdateHexGridPending(manager, hexGrid, updateHexGridDto);
+      }
     });
   }
 

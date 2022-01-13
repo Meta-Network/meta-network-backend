@@ -17,6 +17,7 @@ import { HexGrid } from '../entities/hex-grid.entity';
 import { HexGridTransactionReferenceEntity } from '../entities/hex-grid-tx-ref.entity';
 import { MetaCmsService } from '../microservices/meta-cms/meta-cms.service';
 import { HexGridsService } from './hex-grids.service';
+import { listeners } from 'process';
 
 describe('HexGridsService', () => {
   let repo: Repository<HexGrid>;
@@ -251,7 +252,7 @@ describe('HexGridsService', () => {
   });
 
   describe('updateByUserId', () => {
-    it('should update entity', async () => {
+    it('should update entity if user has a hexGrid', async () => {
       jest
         .spyOn(service, 'isUploadToAreaveEnabled')
         .mockImplementation(async () => false);
@@ -281,9 +282,26 @@ describe('HexGridsService', () => {
       expect(entity.userAvatar).toBe(updateHexGridDto.userAvatar);
       expect(entity.userBio).toBe(updateHexGridDto.userBio);
     });
+
+    it('should ignore quietly if user has no hexGrid', async () => {
+      jest
+        .spyOn(service, 'isUploadToAreaveEnabled')
+        .mockImplementation(async () => false);
+      let entity = await repo.findOne(1);
+      expect(entity).toBeUndefined();
+      const updateHexGridDto = {
+        userId: 1,
+        userNickname: 'BenBen42',
+        userAvatar: 'https://meta.fan/images/logo.png',
+        userBio: 'Web 3 / Metaverse',
+      };
+      await service.updateByUserId(updateHexGridDto);
+      entity = await repo.findOne(1);
+      expect(entity).toBeUndefined();
+    });
   });
   describe('updateByMetaSpaceSiteId', () => {
-    it('should update entity', async () => {
+    it('should update entity if a matching hex grid exists', async () => {
       jest
         .spyOn(service, 'isUploadToAreaveEnabled')
         .mockImplementation(async () => false);
@@ -317,6 +335,27 @@ describe('HexGridsService', () => {
       expect(entity.siteName).toBe(updateHexGridDto.siteName);
       expect(entity.subdomain).toBe(updateHexGridDto.subdomain);
       expect(entity.metaSpaceSiteProofUrl).toBe('');
+    });
+
+    it('should ignore quietly if no matching hex grid exists', async () => {
+      jest
+        .spyOn(service, 'isUploadToAreaveEnabled')
+        .mockImplementation(async () => false);
+
+      let entity = await repo.findOne(1);
+      expect(entity).toBeUndefined();
+
+      const updateHexGridDto = {
+        metaSpaceSiteId: 12,
+        siteName: 'Meta Fan',
+        subdomain: 'alice-1',
+        metaSpaceSiteUrl: 'http://meta.fan',
+      };
+      await service.updateByMetaSpaceSiteId(updateHexGridDto);
+      entity = await repo.findOne({
+        metaSpaceSiteId: 12,
+      });
+      expect(entity).toBeUndefined();
     });
   });
   describe('getForbiddenZoneRadius', () => {

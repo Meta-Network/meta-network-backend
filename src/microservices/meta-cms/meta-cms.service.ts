@@ -37,12 +37,16 @@ export class MetaCmsService implements OnApplicationBootstrap {
     );
     do {
       result = await this.doFetchUserDefaultSiteInfo(userId);
-      console.log(result, retryCount, maxRetry);
-      if (result?.statusCode === HttpStatus.OK && result?.data) {
+      this.logger.verbose(
+        `result: ${JSON.stringify(
+          result,
+        )} retryCount:${retryCount}, maxRetry: ${maxRetry}`,
+      );
+      if (result?.statusCode === HttpStatus.OK) {
         return result.data as SiteInfoDto;
       }
       // 重试1次
-      if (result.retryable) {
+      if (result?.retryable) {
         retryCount++;
         this.logger.verbose(
           `Fetching user default meta space site info user id: ${userId} failed ${retryCount} time(s).`,

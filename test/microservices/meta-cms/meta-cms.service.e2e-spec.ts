@@ -37,7 +37,7 @@ describe('MetaCmsService (e2e)', () => {
   describe('fetchUserDefaultSiteInfo', () => {
     it('should return site info', async () => {
       jest.setTimeout(15000);
-      const mockUserId = 14;
+      const mockUserId = -12345677890;
 
       const sendSpy = jest.spyOn(cmsMsClient, 'send');
       //   .mockImplementationOnce(
@@ -46,10 +46,13 @@ describe('MetaCmsService (e2e)', () => {
       //   );
       expect(sendSpy).toHaveBeenCalledTimes(0);
 
-      await metaCmsService.fetchUserDefaultSiteInfo(mockUserId);
+      const siteInfo = await metaCmsService.fetchUserDefaultSiteInfo(
+        mockUserId,
+      );
+      console.log('site info', siteInfo);
       expect(sendSpy).toHaveBeenCalledWith(
         CmsMsClientMethod.FETCH_USER_DEFAULT_SITE_INFO,
-        { userId: 14 },
+        { userId: mockUserId },
       );
       expect(sendSpy).toHaveBeenCalledTimes(1);
     });
