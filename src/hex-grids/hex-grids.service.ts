@@ -54,7 +54,6 @@ export class HexGridsService {
       };
     } else {
       hexGridSiteInfo = {};
-      q;
     }
     let hexGridEntity;
 
