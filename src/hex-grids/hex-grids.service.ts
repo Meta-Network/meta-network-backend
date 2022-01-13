@@ -44,12 +44,18 @@ export class HexGridsService {
     }
     const metaSpaceDomain = this.getMetaSpaceDomain();
     const siteInfo = await this.metaCmsService.fetchUserDefaultSiteInfo(userId);
-    const subdomain = `${siteInfo.metaSpacePrefix}.${metaSpaceDomain}`;
-    const hexGridSiteInfo = {
-      subdomain,
-      metaSpaceSiteId: siteInfo.configId,
-      metaSpaceSiteUrl: `https://${siteInfo.domain ?? subdomain}`,
-    };
+    let hexGridSiteInfo;
+    if (siteInfo?.configId && siteInfo.metaSpacePrefix) {
+      const subdomain = `${siteInfo.metaSpacePrefix}.${metaSpaceDomain}`;
+      hexGridSiteInfo = {
+        subdomain,
+        metaSpaceSiteId: siteInfo.configId,
+        metaSpaceSiteUrl: `https://${siteInfo.domain ?? subdomain}`,
+      };
+    } else {
+      hexGridSiteInfo = {};
+      q;
+    }
     let hexGridEntity;
 
     await this.databaseConnection.transaction(async (manager) => {
