@@ -40,6 +40,7 @@ module.exports =
         password: db.password,
         database: db.database,
         charset: db.charset || 'utf8mb4',
+        timezone: db.timezone || 'Z',
         connectTimeout: db.connect_timeout,
         synchronize: false,
         logging: process.env.NODE_ENV !== 'production',
